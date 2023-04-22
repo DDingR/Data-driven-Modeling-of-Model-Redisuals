@@ -1,4 +1,4 @@
-function trg_data = data_pre_processing(file_name, plot_data=false)
+function trg_data = data_pre_processing(file_name, plot_data)
 
     if file_name == ""
         file_name = "0421_0641PM0";
