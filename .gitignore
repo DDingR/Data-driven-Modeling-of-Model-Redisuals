@@ -1,0 +1,15 @@
+## ignore file
+# example.txt
+
+## ignore extension
+# *.txt
+.MATLABDriveTag
+
+## ignore directory
+# [/Ll]ibrary/
+
+## VS cache directory
+.vs/
+__pychace__
+*.DS_Store
+
