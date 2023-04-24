@@ -51,7 +51,6 @@ def F(sample):
     # Fyf = 2 * Ca * (StrAng - np.arctan2((vy+l*yawRate), vx))
     Fyf = 2 * Ca * (StrAng - ((vy+l*yawRate)/ vx))
 
-
     x_dot = ((Fxf * np.cos(StrAng) - Fyf * np.sin(StrAng)) + Frl+Frr) * 1/m + yawRate*vy
     return x_dot
 
@@ -69,6 +68,7 @@ def main():
     dataset = csv2dataset(raw_csv)
     np.random.shuffle(dataset[0])
     [sample_num, _] = dataset.shape
+    reporter.info(f"Loaded csv data is {raw_csv_dir}")
 
     test_dataset = dataset[0:int(sample_num*0.1), :]
     train_dataset = dataset[int(sample_num*0.1):, :]
@@ -76,14 +76,19 @@ def main():
     # Trainer Setting
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = NN().to(device)
-    print(f"device({device}) is working")
     loss_fn = nn.MSELoss()
-   
+    reporter.info(f"Device({device}) is working for train")
+
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     loss_list = []
 
+    # result path
+    onnx_path = "./savemodel/" + cur_time + "NN_"
+    fig_path = "./fig/" + cur_time + "loss.png"
+
+
     try: 
-        # VALIDATION
+        reporter.info(f"Train Started")
         for episode in range(EPISODE):
             with torch.no_grad():
                 random_pick = np.random.choice(len(test_dataset), VALIDATION_SIZE)
@@ -101,18 +106,20 @@ def main():
                 loss = torch.sqrt(loss_fn(pred, target)).item()
                 loss_list.append(loss)
 
-                if loss < loss_list[-1] and episode > SAVE_START:
-                    saveONNX(model, device, episode)
+                if episode == 0: # save non-trained network 
+                    saveONNX(model, device, episode, onnx_path)
+                    reporter.info(f"Saved non-trained network")
+                elif loss == min(loss_list) and episode > SAVE_START:
+                    saveONNX(model, device, episode, onnx_path)
 
             # TRAIN REPORT
             if episode % PLOT_PER_EPISODE == 0:
-                print(f"[INFO] EPISODE {episode}, LOSS {loss}")
+                reporter.info(f"EPISODE {episode}, LOSS {loss}")
 
-                fig_name = './fig/loss.png'
                 plt.plot(loss_list)
-                plt.savefig(fig_name)
+                plt.savefig(fig_path)
                 plt.clf()
-                print(f"[INFO] LOSS FUNCTION PLOTTED at {fig_name}")
+                reporter.info(f"LOSS FUNCTION PLOTTED at {fig_path}")
 
             # EPOCH TRAIN
             for _ in range(EPOCH):
@@ -135,8 +142,8 @@ def main():
                 optimizer.step()
 
     finally:
-        print(f"[INFO] train finished. \nfinal loss: {loss}")
-        saveONNX(model, device, "FINAL")
+        reporter.info(f"train finished. \nfinal loss: {loss}")
+        saveONNX(model, device, "FINAL", onnx_path)
 
 if __name__ == '__main__':
     main()

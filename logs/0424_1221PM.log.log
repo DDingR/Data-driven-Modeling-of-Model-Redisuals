@@ -1,0 +1,9 @@
+"2023-04-24 12:21:06,356 [INFO] Reporter Initialized!
+"2023-04-24 12:21:06,356 [INFO] Reporter LEVEL: info
+"2023-04-24 12:21:06,423 [INFO] Loaded csv data is 0421_0641PM0
+"2023-04-24 12:21:07,120 [INFO] Device(cuda) is working for train
+"2023-04-24 12:21:07,120 [INFO] Train Started
+"2023-04-24 12:21:07,508 [INFO] Saved non-trained network
+"2023-04-24 12:21:07,508 [INFO] [INFO] EPISODE 0, LOSS 51.50394058227539
+"2023-04-24 12:21:07,652 [INFO] [INFO] train finished. 
+final loss: 51.50394058227539

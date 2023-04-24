@@ -32,8 +32,8 @@ def np2tensor(x, device):
     x = torch.as_tensor(x, device=device, dtype=torch.float32)
     return x
 
-def saveONNX(model, device, episode):
-    onnx_name = './savemodel/NN_' + str(episode) + '.onnx'
+def saveONNX(model, device, episode, onnx_path):
+    onnx_name = onnx_path + str(episode) + ".onnx"
     model.eval()
     dummy_input = torch.randn(1,6,device=device, requires_grad=True)
     torch.onnx.export(
