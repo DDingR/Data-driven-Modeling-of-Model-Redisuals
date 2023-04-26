@@ -1,12 +1,15 @@
 clear
 close all
+rng('shuffle')
+format shortEng
+format compact
 %% constants
 file_name = "0421_0641PM0";
 nn_name = "0426_0243PM/20";
 TEST_TRAIN_DATA_RATE = 0.1;
-test_num = 10;
-    Ts = 0.01;
-Np = 5; Nc = 1;
+test_num = 5;
+Ts = 0.01; Np = 20; Nc = Np;
+PLOT_DATA = false;
 %%
 nn = "./savemodel/" + nn_name + ".onnx";
 nn = importONNXNetwork( ...
@@ -15,21 +18,25 @@ nn = importONNXNetwork( ...
 % analyzeNetwork(nn)
 
 %% data fron csv
-file_name = "processed_csv_data/" + file_name +".csv";
-CM_data = csvread(file_name);
+shuffled_file_name = "processed_csv_data/shuffled_" + file_name +".csv";
+raw_file_name = "processed_csv_data/" +  file_name + ".csv";
+CM_data = csvread(shuffled_file_name);
+raw_data = csvread(raw_file_name);
 [sample_num, var_num] = size(CM_data);
 
 CM_data = CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :);
 CM_data = CM_data(randperm(test_num),:);
 
 %% target, prediction calc
+raw_num = CM_data(:,1);
 CM_data = CM_data(:,2:end);
 trg = CM_data(:, 1:3)';
 CM_data = CM_data(:, 4:end);
 
-prediction_list = zeros(test_num, Np); 
-prediction_analytic_list = zeros(test_num, Np); 
-err_list = zeros(test_num, 1);
+prediction_list = zeros(Np, 3*test_num); 
+prediction_analytic_list = zeros(Np, 3*test_num);
+raw_state_list = zeros(Np, 3*test_num); 
+err_list = zeros(test_num, 3);
 
 CM_data = CM_data';
 q = 0;
@@ -40,6 +47,10 @@ for sample = CM_data
     Dx = Dx * Ts;
 
     input_sample = dlarray(sample, "CB");
+    
+    % prediction test
+    err = (trg(:,q+1) - f0) - extractdata(predict(nn, input_sample));
+    err_list(q+1, 1) = sqrt(sum(err.^2));  
 
     g = zeros(3,6);
     for i = 1:1:3
@@ -49,41 +60,57 @@ for sample = CM_data
     end
 
     state = sample(1:3);
-    controlInput = repmat(sample(4:6), Nc, 1);
 
-    [Phi, F, gamma] = predmat(dfdx0+g);
+    raw_traj = raw_data(raw_num(q+1):raw_num(q+1)+Np-1, 2:end);
+    raw_state = raw_traj(:,4:6);
+    raw_state_list(:, (q)*3+1:(q)*3+3) = raw_state;
+
+    raw_control = raw_traj(:,7:9);
+    controlInput = reshape(raw_control, [], 1);
+
+    [Phi, F, gamma] = predmat(dfdx0+g, Np, Nc, Ts);
     traj = F*state + Phi * controlInput + gamma * Dx;
-    traj = reshape(traj, 3, []);
-        prediction_list((q+1)*3:(q+1)*3+2,:) = traj;
+    traj = reshape(traj, [], 3);
+    prediction_list(:, (q)*3+1:(q)*3+3) = traj;
     
-    [Phi, F, gamma]  = predmat(dfdx0);
-    traj = F*state + Phi * controlInput + gamma * Dx;
-    traj = reshape(traj, 3, []);
-        prediction_analytic_list((q+1)*3:(q+1)*3+2,:) = traj;
-        q = q+1;
+    err = raw_state - traj;
+    % err_list(q, 2) = sqrt(sum(err.^2));  
+    err_list(q+1, 2) = norm(err, 2);
 
-    err = (trg(:,q) - f0) - extractdata(predict(nn, input_sample));
-    err_list(q) = sqrt(sum(err.^2));
+    [Phi, F, gamma]  = predmat(dfdx0, Np, Nc, Ts);
+    analytic_traj = F*state + Phi * controlInput + gamma * Dx;
+    analytic_traj = reshape(analytic_traj, [], 3);
+    prediction_analytic_list(:, (q)*3+1:(q)*3+3) = analytic_traj;
+
+    err = raw_state - analytic_traj;
+    % err_list(q, 2) = sqrt(sum(err.^2));  
+    err_list(q+1, 3) = norm(err, 2);
+
+    q = q+1;
 end
 
 %% plot
-for s = 1:1:q
-    for p = 1:1:3
+if PLOT_DATA
+    for s = 1:1:test_num
         figure(s)
         
         subplot(3,1,1)
-        plot(prediction_list(s,:)*3.6, 'r');
+        plot(prediction_list(:, (s-1)*3+1)*3.6, 'r');
         hold on 
-        plot(prediction_analytic_list(s,:)*3.6);
+        plot(prediction_analytic_list(:, (s-1)*3+1)*3.6, 'b');
+        plot(raw_state_list(:, (s-1)*3+1)*3.6, 'g');
         subplot(3,1,2)
-        plot(prediction_list(s+1,:)*3.6, 'r');
+        plot(prediction_list(:, (s-1)*3+2)*3.6, 'r');
         hold on 
-        plot(prediction_analytic_list(s+1,:)*3.6);        
+        plot(prediction_analytic_list(:, (s-1)*3+2)*3.6, 'b');   
+        plot(raw_state_list(:, (s-1)*3+2)*3.6, 'g');     
         subplot(3,1,3)
-        plot(prediction_list(s+2,:)*180/pi, 'r');
+        plot(prediction_list(:, (s-1)*3+3)*180/pi, 'r');
         hold on 
-        plot(prediction_analytic_list(s+2,:)*180/pi); 
-        legend
+        plot(prediction_analytic_list(:, (s-1)*3+3)*180/pi, 'b'); 
+        plot(raw_state_list(:, (s-1)*3+3)*180/pi, 'g');
+
+        % legend
         % title("Target - F - G")
         % xlabel("") 
         % ylabel("X2")
@@ -166,10 +193,7 @@ function [y, g] = model(net, x, i)
 end
 
 %% predicitive matrices
-function [Phi, F, gamma] = predmat(h)
-    Ts = 0.01;
-Np = 5; Nc = 1;
-
+function [Phi, F, gamma] = predmat(h, Np, Nc, Ts)
     A = h(:,1:3);
     B = h(:,4:6);
     C = eye(3);

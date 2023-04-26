@@ -31,11 +31,15 @@ for i = 1:1:sample_num
 %     dataset(i,:) = [data(2,i+1) data(sample_list, i)'];
     dataset(i,:) = [i data(2:4,i)' data(sample_list, i)'];
 end
-dataset = dataset(randperm(sample_num),:);
-%% save
 trg_data = array2table(dataset);
-
 trg_data_dir = "processed_csv_data/" + file_name + ".csv";
+writetable(trg_data, trg_data_dir, WriteVariableNames=false);
+disp("saved at " + trg_data_dir)
+
+shuffled_dataset = dataset(randperm(sample_num),:);
+%% save
+trg_data = array2table(shuffled_dataset);
+trg_data_dir = "processed_csv_data/shuffled_" + file_name + ".csv";
 writetable(trg_data, trg_data_dir, WriteVariableNames=false);
 disp("saved at " + trg_data_dir)
 
