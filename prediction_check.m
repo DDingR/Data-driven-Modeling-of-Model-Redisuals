@@ -2,12 +2,11 @@ clear
 close all
 %% constants
 file_name = "0421_0641PM0";
-nn_name = "0424_0208PMNN_FINAL";
+nn_name = "0426_0243PM/20";
 TEST_TRAIN_DATA_RATE = 0.1;
 test_num = 10;
-%% simulation constants
-Ts = 0.01;
-Np = 20; Nc = 1;
+    Ts = 0.01;
+Np = 5; Nc = 1;
 %%
 nn = "./savemodel/" + nn_name + ".onnx";
 nn = importONNXNetwork( ...
@@ -24,75 +23,105 @@ CM_data = CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :);
 CM_data = CM_data(randperm(test_num),:);
 
 %% target, prediction calc
-trg = CM_data(:, 1:3);
+CM_data = CM_data(:,2:end);
+trg = CM_data(:, 1:3)';
 CM_data = CM_data(:, 4:end);
 
 prediction_list = zeros(test_num, Np); 
 prediction_analytic_list = zeros(test_num, Np); 
+err_list = zeros(test_num, 1);
 
 CM_data = CM_data';
 q = 0;
 for sample = CM_data
-    f = dFdX(sample);
+    f0 = analy_F(sample);
+    dfdx0 = analy_dFdX(sample);
+    Dx = f0 + dfdx0 * sample;
+    Dx = Dx * Ts;
 
     input_sample = dlarray(sample, "CB");
 
-    [v,g] = dlfeval(@model,nn,input_sample, 1);
-    g1 = extractdata(g); % input_sample = extractdata(input_sample);
+    g = zeros(3,6);
+    for i = 1:1:3
+        [v,grad] = dlfeval(@model,nn,input_sample, i);
+        tmp = extractdata(grad); % input_sample = extractdata(input_sample);
+        g(i,:) = tmp;
+    end
 
-    [v,g] = dlfeval(@model,nn,input_sample, 2);
-    g2 = extractdata(g); % input_sample = extractdata(input_sample);
-
-    [v,g] = dlfeval(@model,nn,input_sample, 3);
-    g3 = extractdata(g); % input_sample = extractdata(input_sample);
-    
-    g = [g1 g2 g3];
-    g = g';
-
-    sample = sample([1 2 3 6 4 5]);
     state = sample(1:3);
     controlInput = repmat(sample(4:6), Nc, 1);
 
+    [Phi, F, gamma] = predmat(dfdx0+g);
+    traj = F*state + Phi * controlInput + gamma * Dx;
+    traj = reshape(traj, 3, []);
+        prediction_list((q+1)*3:(q+1)*3+2,:) = traj;
+    
+    [Phi, F, gamma]  = predmat(dfdx0);
+    traj = F*state + Phi * controlInput + gamma * Dx;
+    traj = reshape(traj, 3, []);
+        prediction_analytic_list((q+1)*3:(q+1)*3+2,:) = traj;
+        q = q+1;
 
-augState = [[0 0 0]'; state];
-
-[Phi, F] = predmat(f+g);
-traj = F*augState + Phi * controlInput;
-traj = reshape(traj, 3, []);
-    prediction_list((q+1)*3:(q+1)*3+2,:) = traj;
-
-[Phi, F]  = predmat(f);
-traj = F*augState + Phi * controlInput;
-traj = reshape(traj, 3, []);
-    prediction_analytic_list((q+1)*3:(q+1)*3+2,:) = traj;
-    q = q+1;
+    err = (trg(:,q) - f0) - extractdata(predict(nn, input_sample));
+    err_list(q) = sqrt(sum(err.^2));
 end
 
 %% plot
 for s = 1:1:q
     for p = 1:1:3
         figure(s)
-        legend
+        
         subplot(3,1,1)
-        plot(prediction_list(s,:));
+        plot(prediction_list(s,:)*3.6, 'r');
         hold on 
-        plot(prediction_analytic_list(s,:));
+        plot(prediction_analytic_list(s,:)*3.6);
         subplot(3,1,2)
-        plot(prediction_list(s+1,:));
+        plot(prediction_list(s+1,:)*3.6, 'r');
         hold on 
-        plot(prediction_analytic_list(s+1,:));        
+        plot(prediction_analytic_list(s+1,:)*3.6);        
         subplot(3,1,3)
-        plot(prediction_list(s+2,:));
+        plot(prediction_list(s+2,:)*180/pi, 'r');
         hold on 
-        plot(prediction_analytic_list(s+2,:));        
+        plot(prediction_analytic_list(s+2,:)*180/pi); 
+        legend
         % title("Target - F - G")
         % xlabel("") 
         % ylabel("X2")
     end
 end
+err_list
+%%
+function f = analy_F(sample)
+    Ca = 756.349/(0.6*pi/180);
+    m = 1644.80;
+    Iz = 2488.892;
+    lf = 1.240;
+    lr = 1.510;
+    w = 0.8;
+    
 
-%% analystic jacobian
-function f = dFdX(sample)
+    vx = sample(1);
+    vy = sample(2) ;   
+    yawRate = sample(3);
+    Frl = sample(5);
+    Frr = sample(6);
+    StrAng = sample(4);
+
+    Fxf = 0;
+    Fyf = 2 * Ca * (StrAng - ((vy+lf*yawRate)/ vx));
+    Fyr = 2 * Ca * (       - ((vy-lr*yawRate)/ vx));
+
+    del_Fxf = 0;
+    del_Fxr = Frr - Frl;
+
+    x_ddot = ((Fxf * cos(StrAng) - Fyf * sin(StrAng)) + Frl+Frr) * 1/m + yawRate*vy;
+    y_ddot = ((Fxf * sin(StrAng) + Fyf * cos(StrAng)) + Fyr) * 1/m - yawRate*vx;
+    psi_ddot = ((lf * (Fxf * sin(StrAng) + Fyf * cos(StrAng)) - lr * Fyr) + w * (del_Fxf + del_Fxr)) / Iz;
+
+    f = [x_ddot; y_ddot; psi_ddot];
+end
+%% dFdX
+function dfdx = analy_dFdX(sample)
 %     Cf = 435.418/0.296296;
     Cr = 756.349/(0.6*pi/180);
     Cf = Cr;
@@ -102,13 +131,12 @@ function f = dFdX(sample)
     lr = 1.510;
     w = 0.8;
     
-
     x_dot = sample(1);
     y_dot = sample(2) ;   
     psi_dot = sample(3);
     % Frl = sample(:,4);
     % Frr = sample(:,5);
-    delta = sample(6);
+    delta = sample(4);
 
     dfdx_op = [
  
@@ -126,7 +154,7 @@ function f = dFdX(sample)
  
  ];
     
-    f = [dfdx_op dfdu_op];
+    dfdx = [dfdx_op dfdu_op];
 end
 
 %% gradient model
@@ -137,64 +165,35 @@ function [y, g] = model(net, x, i)
    g = dlgradient(y, x);
 end
 
-%% analystic PDE
-% function x_ddot = F(sample)
-%     Ca = 756.349/(0.6*pi/180);
-%     l = 1.240;
-%     m = 1644.80;
-% 
-%     vx = sample(:,1);
-%     vy = sample(:,2) ;   
-%     yawRate = sample(:,3);
-%     Frl = sample(:,4);
-%     Frr = sample(:,5);
-%     StrAng = sample(:,6);
-% 
-%     Fxf = 0;
-% 
-%     Fyf = 2 * Ca * (StrAng - ((vy+l*yawRate)./ vx));
-% 
-%     x_ddot = ((Fxf .* cos(StrAng) - Fyf .* sin(StrAng)) + Frl+Frr) * 1/m + yawRate.*vy;
-% end
-
-function [Phi, F] = predmat(h)
+%% predicitive matrices
+function [Phi, F, gamma] = predmat(h)
     Ts = 0.01;
-Np = 20; Nc = 1;
+Np = 5; Nc = 1;
 
-
-        A = h(:,1:3);
-        B = h(:,4:6);
-        C = eye(3);
+    A = h(:,1:3);
+    B = h(:,4:6);
+    C = eye(3);
     
     [stateSize, inputSize] = size(C);
-augStateSize = stateSize * 2;
-predStateSize = stateSize * Np;
-predInputSize = inputSize * Nc;
-    % Start ========================================================================================
-    % [A,B,C,D] = augmentation_ext(A,B,C,D,Ts);
-    % ==============================================================================================
+    predStateSize = stateSize * Np;
+    predInputSize = inputSize * Nc;
+
     A = A*Ts+eye(stateSize);
     B = B*Ts;
-    
-    A = [A zeros(inputSize, stateSize);
-        C*A eye(stateSize)];
-    B = [B; C*B];
-    C = [zeros(stateSize, inputSize) eye(stateSize)];
-    % End ==========================================================================================
-    % [A,B,C,D] = augmentation_ext(A,B,C,D,Ts);
-    % ==============================================================================================
-    
-    % Start ========================================================================================
-    % [F, Phi] = predMat(A, B, C, Np, Nc);
-    % ==============================================================================================
-    F = ones(predStateSize, augStateSize);
+
+    F = ones(predStateSize, stateSize);
     Phi = zeros(predStateSize, predInputSize);
-    
+    gamma = zeros(predStateSize, stateSize);
+
+    pre_gamma = zeros(3,3);
     for i = 1:1:Np
         F((i-1)*stateSize+1:i*stateSize, ...
-            1:augStateSize) = C * A^i;
+            1:stateSize) = C * A^i;
+        gamma((i-1)*stateSize+1:i*stateSize, ...
+            1:stateSize) = A^(i-1) + pre_gamma;
+        pre_gamma = gamma((i-1)*stateSize+1:i*stateSize, 1:stateSize);
         for j = 1:1:Nc
-            tmp = C * A^(i-1) * B;
+            tmp =  C * A^(i-1) * B;
             Phi((i+j-2)*stateSize+1:(i+j-1)*stateSize, ...
                 (j-1)*inputSize+1:j*inputSize) = tmp;
         end

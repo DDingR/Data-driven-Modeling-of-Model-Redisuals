@@ -20,8 +20,6 @@ SAVE_START = int(1)
 PLOT_PER_EPISODE = int(1)
 PLOT_FROM = 1e1
 TEST_TRAIN_DATA_RATE = 0.1
-
-trg_state = 0
 # END ==========================================
 # CONSTANTS ====================================
 
@@ -51,8 +49,8 @@ def F(sample):
     del_Fxr = Frr - Frl
 
     x_ddot = ((Fxf * np.cos(StrAng) - Fyf * np.sin(StrAng)) + Frl+Frr) * 1/m + yawRate*vy
-    y_ddot = ((Fxf * np.sin(StrAng) + Fyf * np.cos(StrAng)) + Fyr) * 1/m + yawRate*vx
-    psi_ddot = ((lf * (Fxf * np.sin(StrAng) + Fyf * np.cos(StrAng)) - lr * Fyr) + w/2 * (del_Fxf + del_Fxr)) / Iz
+    y_ddot = ((Fxf * np.sin(StrAng) + Fyf * np.cos(StrAng)) + Fyr) * 1/m - yawRate*vx
+    psi_ddot = ((lf * (Fxf * np.sin(StrAng) + Fyf * np.cos(StrAng)) - lr * Fyr) + w * (del_Fxf + del_Fxr)) / Iz
 
     ddots = np.array([x_ddot, y_ddot, psi_ddot])
     ddots = ddots.T
@@ -71,8 +69,8 @@ def main():
     [sample_num, _] = dataset.shape
     reporter.info(f"Loaded csv data is {raw_csv_dir}")
 
-    test_dataset = dataset[0:int(sample_num*TEST_TRAIN_DATA_RATE), :]
-    train_dataset = dataset[int(sample_num*TEST_TRAIN_DATA_RATE):, :]
+    test_dataset = dataset[0:int(sample_num*TEST_TRAIN_DATA_RATE), 1:]
+    train_dataset = dataset[int(sample_num*TEST_TRAIN_DATA_RATE):, 1:]
 
     # Trainer Setting
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -84,8 +82,10 @@ def main():
     loss_list = []
 
     # result path
-    onnx_path = "./savemodel/" + cur_time + "NN_"
+    onnx_path = "./savemodel/"  + cur_time + "/"
     fig_path = "./fig/" + cur_time + "loss.png"
+
+    os.mkdir(onnx_path)
 
     try: 
         reporter.info(f"Train Started")
@@ -93,11 +93,11 @@ def main():
             with torch.no_grad():
                 random_pick = np.random.choice(len(test_dataset), VALIDATION_SIZE)
                 sample = test_dataset[random_pick,:]
-                target = sample[:,trg_state]
+                target = sample[:,0:3]
                 input_data = sample[:,3:]
                 analystic_target = F(input_data)
 
-                target = target-analystic_target[:, trg_state]
+                target = target-analystic_target
 
                 X_list = np2tensor(input_data, device)    
                 target = np2tensor(target, device)
@@ -126,11 +126,11 @@ def main():
             for _ in range(EPOCH):
                 random_pick = np.random.choice(len(train_dataset), BATCH_SIZE)
                 sample = train_dataset[random_pick,:]
-                target = sample[:,trg_state]
+                target = sample[:,0:3]
                 input_data = sample[:,3:]
                 analystic_target = F(input_data)
 
-                target = target-analystic_target[:, trg_state]
+                target = target-analystic_target
 
                 X_list = np2tensor(input_data, device)    
                 target = np2tensor(target, device)

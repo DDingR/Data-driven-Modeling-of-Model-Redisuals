@@ -1,6 +1,6 @@
 clear
 
-nn = "./savemodel/NN_FINAL.onnx";
+nn = "./savemodel/0424_0544PMNN_21.onnx";
 nn = importONNXNetwork( ...
   nn,  TargetNetwork="dlnetwork", InputDataFormats="BC", OutputDataFormats="BC" ...
 );
@@ -15,3 +15,4 @@ function [y, g] = model(net, x)
    % g = dlgradient(y, net.Learnables);
    g = dlgradient(y, x);
 end
+

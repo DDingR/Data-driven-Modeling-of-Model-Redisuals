@@ -26,10 +26,10 @@ data = csvread(raw_data_dir);
 %   sample_data = [ax vx vy yawRate FRL FRR StrAng] ->  7
 %% sampling
 sample_list = [5 6 7 12 8 9];
-dataset = zeros(sample_num, 9);
+dataset = zeros(sample_num, 10);
 for i = 1:1:sample_num
 %     dataset(i,:) = [data(2,i+1) data(sample_list, i)'];
-    dataset(i,:) = [data(2:4,i)' data(sample_list, i)'];
+    dataset(i,:) = [i data(2:4,i)' data(sample_list, i)'];
 end
 dataset = dataset(randperm(sample_num),:);
 %% save
