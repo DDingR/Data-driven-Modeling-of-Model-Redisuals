@@ -1,0 +1,234 @@
+#INFOFILE1.1 - Do not remove this line!
+
+File.Format = erg
+File.ByteOrder = LittleEndian
+File.DateInSeconds = 1681153282
+File.DateLocal = 2023-04-11 04:01:22 KST
+
+File.At.1.Name = Time
+File.At.1.Type = Double
+Quantity.Time.Unit = s
+
+File.At.2.Name = Car.YawAcc
+File.At.2.Type = Float
+Quantity.Car.YawAcc.Unit = rad/s^2
+
+File.At.3.Name = Car.YawRate
+File.At.3.Type = Float
+Quantity.Car.YawRate.Unit = rad/s
+
+File.At.4.Name = Car.ax
+File.At.4.Type = Float
+Quantity.Car.ax.Unit = m/s^2
+
+File.At.5.Name = Car.ay
+File.At.5.Type = Float
+Quantity.Car.ay.Unit = m/s^2
+
+File.At.6.Name = Car.az
+File.At.6.Type = Float
+Quantity.Car.az.Unit = m/s^2
+
+File.At.7.Name = Car.vx
+File.At.7.Type = Float
+Quantity.Car.vx.Unit = m/s
+
+File.At.8.Name = Car.vy
+File.At.8.Type = Float
+Quantity.Car.vy.Unit = m/s
+
+File.At.9.Name = Car.vz
+File.At.9.Type = Float
+Quantity.Car.vz.Unit = m/s
+
+File.At.10.Name = PT.Motor.Trq
+File.At.10.Type = Float
+Quantity.PT.Motor.Trq.Unit = Nm
+
+File.At.11.Name = PT.Motor1.Trq
+File.At.11.Type = Float
+Quantity.PT.Motor1.Trq.Unit = Nm
+
+File.At.12.Name = Vhcl.FL.Fx
+File.At.12.Type = Float
+Quantity.Vhcl.FL.Fx.Unit = N
+
+File.At.13.Name = Vhcl.FL.Fy
+File.At.13.Type = Float
+Quantity.Vhcl.FL.Fy.Unit = N
+
+File.At.14.Name = Vhcl.FL.LongSlip
+File.At.14.Type = Float
+
+File.At.15.Name = Vhcl.FL.SideSlip
+File.At.15.Type = Float
+Quantity.Vhcl.FL.SideSlip.Unit = rad
+
+File.At.16.Name = Vhcl.FR.Fx
+File.At.16.Type = Float
+Quantity.Vhcl.FR.Fx.Unit = N
+
+File.At.17.Name = Vhcl.FR.Fy
+File.At.17.Type = Float
+Quantity.Vhcl.FR.Fy.Unit = N
+
+File.At.18.Name = Vhcl.FR.LongSlip
+File.At.18.Type = Float
+
+File.At.19.Name = Vhcl.FR.SideSlip
+File.At.19.Type = Float
+Quantity.Vhcl.FR.SideSlip.Unit = rad
+
+File.At.20.Name = Vhcl.RL.Fx
+File.At.20.Type = Float
+Quantity.Vhcl.RL.Fx.Unit = N
+
+File.At.21.Name = Vhcl.RL.Fy
+File.At.21.Type = Float
+Quantity.Vhcl.RL.Fy.Unit = N
+
+File.At.22.Name = Vhcl.RL.LongSlip
+File.At.22.Type = Float
+
+File.At.23.Name = Vhcl.RL.SideSlip
+File.At.23.Type = Float
+Quantity.Vhcl.RL.SideSlip.Unit = rad
+
+File.At.24.Name = Vhcl.RR.Fx
+File.At.24.Type = Float
+Quantity.Vhcl.RR.Fx.Unit = N
+
+File.At.25.Name = Vhcl.RR.Fy
+File.At.25.Type = Float
+Quantity.Vhcl.RR.Fy.Unit = N
+
+File.At.26.Name = Vhcl.RR.LongSlip
+File.At.26.Type = Float
+
+File.At.27.Name = Vhcl.RR.SideSlip
+File.At.27.Type = Float
+Quantity.Vhcl.RR.SideSlip.Unit = rad
+
+File.At.28.Name = Vhcl.Steer.Ang
+File.At.28.Type = Float
+Quantity.Vhcl.Steer.Ang.Unit = rad
+
+File.At.29.Name = $none$
+File.At.29.Type = 4 Bytes
+
+Anim.Msg.0.Time = 0
+Anim.Msg.0.Class = Anim
+Anim.Msg.0.Id = 18
+Anim.Msg.0.Data:
+	rHuwpR6N1i16lWpFNqheAG4wKPSse7AxAAAAYwAAAGMAAAAAABJsaW51eDY0AE9m
+	ZmxpbmUAMTEuMQAvaG9tZS9kZGluZy9DTV9Qcm9qZWN0cy9kZW1vMQBtc19yb2Fk
+	X2ZyaWN0aW9uAC50bXBfZGRpbmd1YnVudHVfZGRpbmcuMQAAAa4U
+
+Anim.Msg.1.Time = 0
+Anim.Msg.1.Class = Anim
+Anim.Msg.1.Id = 50
+Anim.Msg.1.Data:
+	nPsNr+Ceij7BhwiyvprdHWPz3Y6c+w27AAAAAwAAAAMAAAAAADIA
+
+Anim.Msg.2.Time = 0
+Anim.Msg.2.Class = Anim
+Anim.Msg.2.Id = 51
+Anim.Msg.2.Data:
+	Ep6O3qqvrqzj9/D0O0bqo5dHdBUSno7KAAAAAwAAAAMAAAAAADMA
+
+Anim.Msg.3.Time = 0
+Anim.Msg.3.Class = Anim
+Anim.Msg.3.Id = 21
+Anim.Msg.3.Data:
+	Ax3ryLLVZ1+dLfRUA5cMfWz2PXEDHetUAAAAaAAAAGgAAAAAABUAAAAAAAAAAAAA
+	AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK
+
+Anim.VehicleClass = Car
+Anim.Vehicle.MovieSkin = 3D/Vehicles/Audi_R8_2016.mobj
+
+Anim.Msg.4.Time = 0
+Anim.Msg.4.Class = Anim
+Anim.Msg.4.Id = 11
+Anim.Msg.4.Data:
+	ecBqVAyXdwxPBa37Ueu6ipdq2ll5wGtkAAAA2AAAANgAAAAAAAsEAAACAAAAAAAA
+	P0rAgz6Yk3VAjaHLv1DlYD+euFIAAAAAAAAAAAAAAABAERaHAAAAAD7+dslEsgZm
+	RNGgAL3MzM0AAAAAPszMzUBfXCk/UOVgPqj1w0BfXCm/UOVgPqj1wz89cKQ/Sn76
+	Pqj1wz89cKS/Sn76Pqj1wwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	vczMzQAAAAA+zMzN
+
+Anim.Msg.5.Time = 0
+Anim.Msg.5.Class = Anim
+Anim.Msg.5.Id = 15
+Anim.Msg.5.Data:
+	aUDJJYg/3ag85dpMhAJ0mR6qSw5pQMntAAAAiAAAAIgAAAAAAA8EAAAAAAAAAQAA
+	Pqdsiz53Cj0AAAAAPnrhSIAAAAAAAAAARaoAAAH/AAA+p2yLPncKPYAAAAA+euFI
+	AAAAAAAAAABFqgAAAgEAAD6wYk4+dwo9AAAAAD6XCj2AAAAAAAAAAEXhAAAD/wAA
+	PrBiTj53Cj2AAAAAPpcKPQAAAAAAAAAAReEAAAoK
+
+Anim.Msg.6.Time = 0
+Anim.Msg.6.Class = Anim
+Anim.Msg.6.Id = 23
+Anim.Msg.6.Data:
+	4OFIJgsvG/ECyGJiHzI1Qv/Clsrg4Uj+AAAAlAAAAJQAAAAAABcAAAAAAAAAAAAA
+	AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoK
+
+Anim.Msg.7.Time = 0
+Anim.Msg.7.Class = Instr
+Anim.Msg.7.Id = 0
+Anim.Msg.7.Data:
+	z2KoqjwyhZ7DXBxRlU3zQ3Vg/PnPYqiGAAAAFAAAABQAAAAAAAAAAAAAAAAAAAAA
+	Q4iAAAAIAAAK
+
+Anim.Msg.8.Time = 0
+Anim.Msg.8.Class = Anim
+Anim.Msg.8.Id = 22
+Anim.Msg.8.Data:
+	RwMntDm2mPaGhbWlqt0I7sBn0JlHAyeYAAAAFAAAABQAAAAAABYAAAAAAAAAAAAA
+	Q4iAAAAIAAAK
+
+Testrun = ms_road_friction
+
+SimParam.DeltaT = 0.001
+
+NamedValues.Count = 0
+
+KeyValues.Count = 0
+
+Scratchpad.QuantAudit-Time.00000:
+	0.010000 0.152789 0
+	0
+	0.01
+	0.152789
+	0
+	0.01
+	0.01
+	0.01
+	0.01
+Scratchpad.QuantAudit-Time:
+	mstop
+	tstart
+	dstart
+	mstart
+	last
+	min
+	max
+	mean
+
+GPUSensors.Count = 0
+
+Comment:
+	For more details see session logfile
+
+CarMaker.NumVersion = 110100
+CarMaker.Version = 11.1
+CarMaker.Version.MatSupp = 11.1
+CarMaker.Version.Apo = 1.37.3
+CarMaker.Version.Info = 1.24.1
+CarMaker.Version.Driver = 11.0
+CarMaker.Version.Road = 11.1
+CarMaker.Version.Tire = 9.0.2
+
