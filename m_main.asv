@@ -1,0 +1,7 @@
+% MAIN FUNCTION TO EXECUTE THE MATLAB FUNCTION 
+
+%% data pre-processing
+PLOT_DATA = false;
+file_name = "0421_0641PM0";
+
+trg_data_dir = data_pre_processing(file_name, )

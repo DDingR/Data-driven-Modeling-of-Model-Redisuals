@@ -1,0 +1,7 @@
+"2023-04-21 18:07:38,060 [INFO] Reporter Initialized!
+"2023-04-21 18:07:38,060 [INFO] Reporter LEVEL: info
+"2023-04-21 18:07:38,060 [INFO] Initializing all necessary class instances
+"2023-04-21 18:07:38,083 [INFO] Creating and Configuring MAPort...
+"2023-04-21 18:07:41,541 [INFO] Starting simulation...
+"2023-04-21 18:07:52,362 [WARNING] TestbenchPortException occured:
+"2023-04-21 18:07:52,362 [WARNING] VendorCodeDescription: Called Fetch(True) without a StopTrigger.
