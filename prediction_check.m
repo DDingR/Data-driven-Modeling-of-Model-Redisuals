@@ -41,9 +41,10 @@ err_target = shuffled_CM_data(:, 1:3)';
 shuffled_CM_data = shuffled_CM_data(:, 4:end);
 
 prediction_list = zeros(1+Np, state_num*TEST_NUM); 
+prediction_nominal_list = zeros(1+Np, state_num*TEST_NUM); 
 prediction_analytic_list = zeros(1+Np, state_num*TEST_NUM);
 ori_state_list = zeros(1+Np, state_num*TEST_NUM); 
-err_list = zeros(TEST_NUM, state_num); 
+err_list = zeros(TEST_NUM, 4); 
 control_list = zeros(Np, control_num*TEST_NUM);
 
 shuffled_CM_data = shuffled_CM_data';
@@ -51,8 +52,7 @@ q = 1;
 for sample = shuffled_CM_data
     f0 = analy_F(sample);
     dfdx0 = analy_dFdX(sample);
-    Dx = f0 + dfdx0 * sample;
-    Dx = Dx * Ts;
+  
 
     input_sample = dlarray(sample, "CB");
     
@@ -67,7 +67,8 @@ for sample = shuffled_CM_data
         tmp = extractdata(grad); % input_sample = extractdata(input_sample);
         g(i,:) = tmp;
     end
-    
+    g0 = extractdata(predict(nn, input_sample));
+
 
     cur_state = sample(1:3);
     cur_state(1)
@@ -81,23 +82,44 @@ for sample = shuffled_CM_data
     raw_control = raw_control';
     controlInput = reshape(raw_control, [], 1);
 
+    % Prediction Proposed ==================================================
+    Dx = f0 + dfdx0 * sample + g0 + g * sample;
+    Dx = Dx * Ts;    
+
     [Phi, F, gamma] = predmat(dfdx0+g, Np, Nc, Ts);
     traj = F*cur_state + Phi * controlInput + gamma * Dx;
     traj = reshape(traj, 3, []);
     traj = traj';
     prediction_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; traj];
-    
+
     total_prediction_err = ori_state - traj;
     err_list(q, 2) = norm(total_prediction_err, 2);
 
+    % Prediction Nominal ==================================================
+    Dx = f0 + dfdx0 * sample + g0;
+    Dx = Dx * Ts;    
+
+    [Phi, F, gamma] = predmat(dfdx0, Np, Nc, Ts);
+    traj = F*cur_state + Phi * controlInput + gamma * Dx;
+    traj = reshape(traj, 3, []);
+    traj = traj';
+    prediction_nominal_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; traj];
+
+    norm_prediction_err = ori_state - traj;
+    err_list(q, 3) = norm(norm_prediction_err, 2);
+   
+    % Prediction Analytic ==================================================
+    Dx_analytic = f0 + dfdx0 * sample;
+    Dx_analytic = Dx_analytic * Ts;  
+
     [Phi, F, gamma]  = predmat(dfdx0, Np, Nc, Ts);
-    analytic_traj = F*cur_state + Phi * controlInput + gamma * Dx;
+    analytic_traj = F*cur_state + Phi * controlInput + gamma * Dx_analytic;
     analytic_traj = reshape(analytic_traj, 3, []);
     analytic_traj = analytic_traj';
     prediction_analytic_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; analytic_traj];
 
     analytic_err = ori_state - analytic_traj;
-    err_list(q, 3) = norm(analytic_err, 2);
+    err_list(q, 4) = norm(analytic_err, 2);
 
     q = q+1;
 end
@@ -112,6 +134,7 @@ if PLOT_DATA
         nexttile
         plot(x_axis, prediction_list(:, (s-1)*3+1)*3.6, 'r');
         hold on 
+        plot(x_axis, prediction_nominal_list(:, (s-1)*3+1)*3.6, 'k');        
         plot(x_axis, prediction_analytic_list(:, (s-1)*3+1)*3.6, 'b');
         plot(x_axis, ori_state_list(:, (s-1)*3+1)*3.6, 'g');
         xlabel("Time Step [0.01ms]")
@@ -121,6 +144,7 @@ if PLOT_DATA
         nexttile
         plot(x_axis, prediction_list(:, (s-1)*3+2)*3.6, 'r');
         hold on 
+        plot(x_axis, prediction_nominal_list(:, (s-1)*3+2)*3.6, 'k');   
         plot(x_axis, prediction_analytic_list(:, (s-1)*3+2)*3.6, 'b');   
         plot(x_axis, ori_state_list(:, (s-1)*3+2)*3.6, 'g');     
         xlabel("Time Step [0.01ms]")
@@ -130,13 +154,14 @@ if PLOT_DATA
         nexttile
         plot(x_axis, prediction_list(:, (s-1)*3+3)*180/pi, 'r');
         hold on
+        plot(x_axis, prediction_nominal_list(:, (s-1)*3+3)*180/pi, 'k');         
         plot(x_axis, prediction_analytic_list(:, (s-1)*3+3)*180/pi, 'b'); 
         plot(x_axis, ori_state_list(:, (s-1)*3+3)*180/pi, 'g');
         xlabel("Time Step [0.01ms]")
         ylabel("Yaw Rate [deg/s]") 
         grid on
 
-        lgd = legend('proposed prediction', 'analytic prediction', 'ground truth');
+        lgd = legend('proposed prediction', 'nominal prediction', 'analytic prediction', 'ground truth');
         lgd.Layout.Tile = 'south';
         lgd.NumColumns = 3;
     end
