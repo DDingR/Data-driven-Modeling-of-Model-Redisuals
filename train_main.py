@@ -121,10 +121,10 @@ def main():
                 sample = test_dataset[random_pick,:]
                 target = sample[:,0:3]
                 input_data = sample[:,3:]
-                dfdx = dFdX(input_data)
-                i4dfdx = np.reshape(input_data, (VALIDATION_SIZE,6,1))
-                # analystic_target = F(input_data) - np.reshape(np.matmul(dfdx, i4dfdx), (VALIDATION_SIZE,3))
-                analystic_target = np.reshape(np.matmul(dfdx, i4dfdx), (VALIDATION_SIZE,3))
+                # dfdx = dFdX(input_data)
+                # i4dfdx = np.reshape(input_data, (VALIDATION_SIZE,6,1))
+                analystic_target = F(input_data)
+                # analystic_target = np.reshape(np.matmul(dfdx, i4dfdx), (VALIDATION_SIZE,3))
 
                 target = target-analystic_target
 
@@ -157,10 +157,10 @@ def main():
                 sample = train_dataset[random_pick,:]
                 target = sample[:,0:3]
                 input_data = sample[:,3:]
-                dfdx = dFdX(input_data)
-                i4dfdx = np.reshape(input_data, (BATCH_SIZE,6,1))
-                # analystic_target = F(input_data) - np.reshape(np.matmul(dfdx, i4dfdx), (BATCH_SIZE,3))
-                analystic_target = np.reshape(np.matmul(dfdx, i4dfdx), (BATCH_SIZE,3))
+                # dfdx = dFdX(input_data)
+                # i4dfdx = np.reshape(input_data, (BATCH_SIZE,6,1))
+                analystic_target = F(input_data)
+                # analystic_target = np.reshape(np.matmul(dfdx, i4dfdx), (BATCH_SIZE,3))
 
                 target = target-analystic_target
 

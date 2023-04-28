@@ -1,13 +1,11 @@
-function err_list = prediction_check(seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np, PLOT_DATA)
+function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np)
     %% constants
-    if nargin == 2
+    if nargin == 3
         FILE_NAME = "0421_0641PM0";
 
         TEST_NUM = 5;
         Ts = 0.01; Np = 20; Nc = Np;
         TEST_TRAIN_DATA_RATE = 0.1;
-        
-        PLOT_DATA = false;    
     elseif nargin < 5
         seed = rng("Shuffle").Seed;
         NN_NAME = "0427_0702PM/18";
@@ -59,7 +57,7 @@ function err_list = prediction_check(seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np,
     prediction_nominal_list = zeros(1+Np, state_num*TEST_NUM); 
     prediction_analytic_list = zeros(1+Np, state_num*TEST_NUM);
     ori_state_list = zeros(1+Np, state_num*TEST_NUM); 
-    err_list = zeros(TEST_NUM, 4); 
+    report_list = zeros(TEST_NUM, 5); 
     control_list = zeros(Np, control_num*TEST_NUM);
     
     % prediction start
@@ -73,7 +71,7 @@ function err_list = prediction_check(seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np,
         
         % NN Uncertainty Prediction Test =======================================
         prediction_err = (err_target(:,q) - f0) - extractdata(predict(nn, input_sample));
-        err_list(q, 1) = norm(prediction_err, 2);  
+        report_list(q, 2) = norm(prediction_err, 2);  
     
         % NN Gradient Calc =====================================================
         g = zeros(3,6);
@@ -89,7 +87,8 @@ function err_list = prediction_check(seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np,
         ori_traj = CM_data(ori_index(q):ori_index(q)+Np-1, 2:end);
         ori_state = ori_traj(:,4:6);
         ori_state_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; ori_state];
-    
+        report_list(q, 1) = ori_state(1);
+
         ori_control = ori_traj(:,7:9);
         control_list(:, (q-1)*3+1:(q-1)*3+3) = ori_control;
         ori_control = ori_control';
@@ -106,7 +105,7 @@ function err_list = prediction_check(seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np,
         prediction_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; traj];
     
         total_prediction_err = ori_state - traj;
-        err_list(q, 2) = norm(total_prediction_err, 2);
+        report_list(q, 3) = norm(total_prediction_err, 2);
     
         % Prediction Nominal ==================================================
         Dx = f0 + dfdx0 * sample + g0;
@@ -119,7 +118,7 @@ function err_list = prediction_check(seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np,
         prediction_nominal_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; traj];
     
         norm_prediction_err = ori_state - traj;
-        err_list(q, 3) = norm(norm_prediction_err, 2);
+        report_list(q, 4) = norm(norm_prediction_err, 2);
        
         % Prediction Analytic ==================================================
         Dx_analytic = f0 + dfdx0 * sample;
@@ -132,12 +131,15 @@ function err_list = prediction_check(seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np,
         prediction_analytic_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; analytic_traj];
     
         analytic_err = ori_state - analytic_traj;
-        err_list(q, 4) = norm(analytic_err, 2);
+        report_list(q, 5) = norm(analytic_err, 2);
     
         q = q+1;
     end
     
-    %% plot
+    %% plot and report
+    report_list = array2table(report_list, 'VariableNames', ...
+        {'Vx0', 'pred_err', 'proposed', 'nominal', 'analytic'});
+
     x_axis = 0:1:20;
     if PLOT_DATA
         for s = 1:1:TEST_NUM

@@ -1,13 +1,11 @@
-function err_list = prediction_check(seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np, PLOT_DATA)
+function err_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np)
     %% constants
-    if nargin == 2
+    if nargin == 3
         FILE_NAME = "0421_0641PM0";
 
         TEST_NUM = 5;
         Ts = 0.01; Np = 20; Nc = Np;
         TEST_TRAIN_DATA_RATE = 0.1;
-        
-        PLOT_DATA = false;    
     elseif nargin < 5
         seed = rng("Shuffle").Seed;
         NN_NAME = "0427_0702PM/18";
@@ -43,7 +41,7 @@ function err_list = prediction_check(seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np,
     CM_data = csvread(ori_file_name);
     [sample_num, var_num] = size(shuffled_CM_data);
     
-    test_data_index = randi(floor(sample_num*TEST_TRAIN_DATA_RATE), 1, TEST_NUM)
+    test_data_index = randi(floor(sample_num*TEST_TRAIN_DATA_RATE), 1, TEST_NUM);
     shuffled_CM_data = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :);
     shuffled_CM_data = shuffled_CM_data(test_data_index,:);
     
@@ -59,7 +57,7 @@ function err_list = prediction_check(seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np,
     prediction_nominal_list = zeros(1+Np, state_num*TEST_NUM); 
     prediction_analytic_list = zeros(1+Np, state_num*TEST_NUM);
     ori_state_list = zeros(1+Np, state_num*TEST_NUM); 
-    err_list = zeros(TEST_NUM, 4); 
+    repor = zeros(TEST_NUM, 4); 
     control_list = zeros(Np, control_num*TEST_NUM);
     
     % prediction start
