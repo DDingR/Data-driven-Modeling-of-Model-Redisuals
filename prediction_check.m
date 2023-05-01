@@ -1,22 +1,22 @@
 function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np)
     %% constants
     if nargin == 3
-        FILE_NAME = "0421_0641PM0";
+        FILE_NAME = "0501_0133PM";
 
         TEST_NUM = 5;
         Ts = 0.01; Np = 20; Nc = Np;
         TEST_TRAIN_DATA_RATE = 0.1;
     elseif nargin < 5
         seed = rng("Shuffle").Seed;
-        NN_NAME = "0427_0702PM/18";
+        NN_NAME = "0501_0137PM/4";
 
-        FILE_NAME = "0421_0641PM0";
+        FILE_NAME = "0501_0133PM";
 
         TEST_NUM = 5;
         Ts = 0.01; Np = 20; Nc = Np;
         TEST_TRAIN_DATA_RATE = 0.1;
         
-        PLOT_DATA = false;
+        PLOT_DATA = true;
     end
     %%
     fprintf("NN_NAME: %s\n", NN_NAME)
@@ -33,6 +33,7 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
       nn,  TargetNetwork="dlnetwork", InputDataFormats="BC", OutputDataFormats="BC" ...
     );
     % analyzeNetwork(nn)
+            disp("approaching while")
     
     %% data load
     shuffled_file_name = "processed_csv_data/shuffled_" + FILE_NAME +".csv";
@@ -40,11 +41,31 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
     shuffled_CM_data = csvread(shuffled_file_name);
     CM_data = csvread(ori_file_name);
     [sample_num, var_num] = size(shuffled_CM_data);
-    
-    test_data_index = randi(floor(sample_num*TEST_TRAIN_DATA_RATE), 1, TEST_NUM);
+                disp("approaching while")
+
+    %% test data index peek
+%         test_data_index = randi(floor(sample_num*TEST_TRAIN_DATA_RATE), 1, TEST_NUM);
     shuffled_CM_data = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :);
-    shuffled_CM_data = shuffled_CM_data(test_data_index,:);
-    
+
+    idx = [];
+    while length(idx) == TEST_NUM
+        while true
+            disp("approaching while")
+            tmp_idx = randi(floor(sample_num*TEST_TRAIN_DATA_RATE));
+            if find(tmp_idx ~= idx)
+                break
+            end
+        end
+
+        tmp = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :);
+        
+
+shuffled_CM_data = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :);
+        shuffled_CM_data = shuffled_CM_data(test_data_index,:);
+    end 
+
+
+
     %% target, prediction calc
     ori_index = shuffled_CM_data(:,1);
     shuffled_CM_data = shuffled_CM_data(:,2:end);
@@ -87,7 +108,7 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
         ori_traj = CM_data(ori_index(q):ori_index(q)+Np-1, 2:end);
         ori_state = ori_traj(:,4:6);
         ori_state_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; ori_state];
-        report_list(q, 1) = ori_state(1);
+        report_list(q, 1) = ori_state(1) * 3.6;
 
         ori_control = ori_traj(:,7:9);
         control_list(:, (q-1)*3+1:(q-1)*3+3) = ori_control;

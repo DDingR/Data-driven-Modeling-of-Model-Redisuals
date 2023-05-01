@@ -2,14 +2,22 @@ function trg_data_dir = data_pre_processing(file_name, PLOT_DATA)
     %%
     if nargin < 2
         PLOT_DATA = false;
-        file_name = "0421_0641PM0";
+        file_name = "0501_0133PM";
     end
     %%
-    raw_data_dir = "raw_csv_data/" + file_name + "/" + file_name + ".csv";
+    raw_data_dir = "CM_data_collector/results/" + file_name;
     
-    data = csvread(raw_data_dir);
+    file_info = dir(raw_data_dir);
+    file_num = length(file_info) - 2; % ignore ".", ".." files
+
+    data = [];
+    for idx = 1:1:file_num
+        tmp = readtable(raw_data_dir + "/" + idx + ".csv");
+        tmp = table2array(tmp);
+        data = [data tmp];
+    end
+
     [var_num, sample_num] = size(data);
-    
     %% DATA INFO
     %     var_list = [
     %         "Time", 

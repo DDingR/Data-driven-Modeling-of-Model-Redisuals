@@ -16,7 +16,7 @@ def main():
     DemoMAPort = None
 
     # rec config
-    simtime = 1000.0
+    simtime = 5000.0
     capture_start = 1.0
     trg_testrun = "demo1"
     rec_num = 1
@@ -39,6 +39,7 @@ def main():
     cur_time = strftime("%m%d_%I%M%p", localtime(time()))
     log_name = cur_time + ".log"
     reporter = reporter_loader("info", log_name)
+    os.makedirs(cur_dir + "/results/" + cur_time)
 
     # MAPort config
     MAPortConfigFile = "Config.xml"
@@ -65,9 +66,11 @@ def main():
             DemoCapture = DemoMAPort.CreateCapture("captureTask")
             DemoCapture.Variables = var_list
             DemoCapture.Downsampling = down_sample_rate 
+            DemoCapture.MinBuffersize = 60000
+            # bufferSize * downSampling / samplingRate(1000Hz) = captureTime
 
             reporter.info("Adding Start and StopTrigger...")
-            DemoStartWatcher = MyWatcherFactory.CreateDurationWatcherByTimeSpan(capture_start-1.0)
+            DemoStartWatcher = MyWatcherFactory.CreateDurationWatcherByTimeSpan(capture_start-0.5)
             DemoCapture.SetStartTrigger(DemoStartWatcher)
             StopDelay = MyDurationFactory.CreateTimeSpanDuration(-1.0)
             DemoStopWatcher = MyWatcherFactory.CreateDurationWatcherByTimeSpan(simtime)
@@ -85,10 +88,12 @@ def main():
 
             capture_result1 = []
             while DemoCapture.State != CaptureState.eFINISHED:
+                reporter.info(f"{capture_start/simtime} {capture_start}\r")
+
                 DemoMAPort.WaitForTime(capture_start)
                 # save data for postprocessing
                 capture_result1.append(DemoCapture.Fetch(False))
-                capture_start = capture_start + 1.0
+                capture_start = capture_start + 50
                 # Fetch returns None if Capture hasn't started yet or no data is available
                 if capture_result1[-1] is None:
                     del capture_result1[-1]
@@ -97,37 +102,49 @@ def main():
             # DemoMAPort.WaitForTime(simtime)
             # capture_result = DemoCapture.Fetch(True)
             DemoMAPort.StopSimulation()
+            # capture_result1.append(DemoCapture.Fetch(True))
 
             reporter.info("Terminating simulation...")
 
             # DemoCapture.Stop()
             # SIM ============================================================================================
-                
-                # data proccessing
-            result = None
-            for capture_result in capture_result1:
-                tmp_list = np.array([])
-                for trg_var in var_list:
-                    tmp = capture_result.ExtractSignalValue(trg_var)
-                    tmp = np.array(tmp.FcnValues.Value)
-                    tmp_list = np.append(tmp_list, tmp)
-                tmp_list = np.reshape(tmp_list, (len(var_list), -1))
-                if result is None:
-                    result = tmp_list
-                else:
-                    result = np.append(result, tmp_list, axis=1)
 
-            # result = np.array(result)
-                    # size: (var_number, sample_number)
-            
-            csv_name = cur_dir + "/results/" + cur_time + str(i) + ".csv"
-            np.savetxt(csv_name, result, delimiter=",")
 
     except TestbenchPortException as ex:
         reporter.warning("TestbenchPortException occured:")
         reporter.warning("VendorCodeDescription: %s" % ex.VendorCodeDescription)
 
     finally:
+
+                
+        # data proccessing
+        result = None
+        for idx, capture_result in enumerate(capture_result1):
+            if idx == 0: # pass first data
+                continue
+
+            tmp_list = np.array([])
+            for trg_var in var_list:
+                tmp = capture_result.ExtractSignalValue(trg_var)
+                tmp = np.array(tmp.FcnValues.Value)
+                tmp_list = np.append(tmp_list, tmp)
+            tmp_list = np.reshape(tmp_list, (len(var_list), -1))
+            # if result is None:
+            #     result = tmp_list
+            # else:
+            #     result = np.append(result, tmp_list, axis=1)
+            
+            result = np.array(tmp_list)
+            csv_name = cur_dir + "/results/" + cur_time + "/" + str(idx) + ".csv"
+            np.savetxt(csv_name, result, delimiter=",")
+
+
+        # result = np.array(result)
+                # size: (var_number, sample_number)
+        
+        # csv_name = cur_dir + "/results/" + cur_time + "/" + str(i) + ".csv"
+        # np.savetxt(csv_name, result, delimiter=",")
+
         if DemoMAPort != None:
             DemoMAPort.Dispose()
             DemoMAPort = None
