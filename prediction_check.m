@@ -1,25 +1,28 @@
 function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np)
+close all
     %% constants
     if nargin == 3
-        FILE_NAME = "0501_0133PM";
+        FILE_NAME = "0501_0725PM";
 
         TEST_NUM = 5;
-        Ts = 0.01; Np = 20; Nc = Np;
+        Ts = 0.01; Np = 100; Nc = Np;
         TEST_TRAIN_DATA_RATE = 0.1;
     elseif nargin < 5
         seed = rng("Shuffle").Seed;
-        NN_NAME = "0501_0137PM/4";
+        NN_NAME = "0501_1040PM/FINAL";
+% 0501_1040PM 0501_0137PM
 
         FILE_NAME = "0501_0133PM";
+% 0501_0725PM 0501_0133PM        
 
         TEST_NUM = 5;
         Ts = 0.01; Np = 20; Nc = Np;
         TEST_TRAIN_DATA_RATE = 0.1;
         
         PLOT_DATA = true;
+%         PLOT_DATA = false;
+        
     end
-    %%
-    fprintf("NN_NAME: %s\n", NN_NAME)
     %% simulation constants
     state_num = 3;
     control_num = 3;
@@ -28,47 +31,34 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
     format shortEng
     format compact
     %% network load
+    fprintf("Loading Neural Network NN_NAME: %s\n", NN_NAME)    
     nn = "./savemodel/" + NN_NAME + ".onnx";
     nn = importONNXNetwork( ...
       nn,  TargetNetwork="dlnetwork", InputDataFormats="BC", OutputDataFormats="BC" ...
     );
     % analyzeNetwork(nn)
-            disp("approaching while")
     
     %% data load
+    fprintf("Loading DataSet FILE_NAME: %s\n", FILE_NAME)        
     shuffled_file_name = "processed_csv_data/shuffled_" + FILE_NAME +".csv";
     ori_file_name = "processed_csv_data/" +  FILE_NAME + ".csv";
     shuffled_CM_data = csvread(shuffled_file_name);
     CM_data = csvread(ori_file_name);
     [sample_num, var_num] = size(shuffled_CM_data);
-                disp("approaching while")
 
     %% test data index peek
-%         test_data_index = randi(floor(sample_num*TEST_TRAIN_DATA_RATE), 1, TEST_NUM);
-    shuffled_CM_data = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :);
-
-    idx = [];
-    while length(idx) == TEST_NUM
-        while true
-            disp("approaching while")
-            tmp_idx = randi(floor(sample_num*TEST_TRAIN_DATA_RATE));
-            if find(tmp_idx ~= idx)
-                break
-            end
-        end
-
-        tmp = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :);
-        
-
-shuffled_CM_data = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :);
-        shuffled_CM_data = shuffled_CM_data(test_data_index,:);
-    end 
-
-
+%     test_data_index = randi(floor(sample_num*TEST_TRAIN_DATA_RATE), 1, TEST_NUM);
+    test_data_num = floor(sample_num*TEST_TRAIN_DATA_RATE);
+    shuffled_CM_data = shuffled_CM_data(1:test_data_num, :);
+%     shuffled_CM_data = shuffled_CM_data(test_data_index,:);
 
     %% target, prediction calc
-    ori_index = shuffled_CM_data(:,1);
-    shuffled_CM_data = shuffled_CM_data(:,2:end);
+    shuffled_index = shuffled_CM_data(:,1);
+    ori_time_list = CM_data(:,2);
+
+    shuffled_CM_data = shuffled_CM_data(:,3:end);
+    CM_data = CM_data(:,3:end);
+
     err_target = shuffled_CM_data(:, 1:3)';
     shuffled_CM_data = shuffled_CM_data(:, 4:end);
     shuffled_CM_data = shuffled_CM_data';
@@ -83,7 +73,25 @@ shuffled_CM_data = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :)
     
     % prediction start
     q = 1;
-    for sample = shuffled_CM_data
+    fprintf("Prediction Start\n")            
+%     for sample = shuffled_CM_data
+    while true
+        if q == TEST_NUM+1
+            break
+        end
+        
+        test_idx = randi(length(shuffled_index));
+        time_step_list = ori_time_list(test_idx+1:test_idx+Np-1, 1) - ori_time_list(test_idx:test_idx+Np-2, 1);
+        
+        time_step_test = sum(time_step_list < 0.015) == Np-1;
+        
+        if time_step_test
+            sample = CM_data(test_idx, 4:end);
+            sample = sample';
+        else
+            continue
+        end
+
         f0 = analy_F(sample);
         dfdx0 = analy_dFdX(sample);
       
@@ -105,7 +113,7 @@ shuffled_CM_data = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :)
     
         cur_state = sample(1:3);
     
-        ori_traj = CM_data(ori_index(q):ori_index(q)+Np-1, 2:end);
+        ori_traj = CM_data(test_idx:test_idx+Np-1, 1:end);
         ori_state = ori_traj(:,4:6);
         ori_state_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; ori_state];
         report_list(q, 1) = ori_state(1) * 3.6;
@@ -116,11 +124,16 @@ shuffled_CM_data = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :)
         controlInput = reshape(ori_control, [], 1);
     
         % Prediction Proposed ==================================================
-        Dx = f0 + dfdx0 * sample + g0 + g * sample;
+        Dx = f0 - dfdx0 * sample + g0 - g * sample;
         Dx = Dx * Ts;    
-    
+
         [Phi, F, gamma] = predmat(dfdx0+g, Np, Nc, Ts);
         traj = F*cur_state + Phi * controlInput + gamma * Dx;
+
+        a = reshape(F*cur_state,3, []);
+        b = reshape(Phi *controlInput, 3,[]);
+        c = reshape(gamma *Dx, 3,[]);
+
         traj = reshape(traj, 3, []);
         traj = traj';
         prediction_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; traj];
@@ -129,8 +142,8 @@ shuffled_CM_data = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :)
         report_list(q, 3) = norm(total_prediction_err, 2);
     
         % Prediction Nominal ==================================================
-        Dx = f0 + dfdx0 * sample + g0;
-        Dx = Dx * Ts;    
+        Dx = f0 - dfdx0 * sample + g0 - g * sample;
+        Dx = Dx * Ts;
     
         [Phi, F, gamma] = predmat(dfdx0, Np, Nc, Ts);
         traj = F*cur_state + Phi * controlInput + gamma * Dx;
@@ -142,9 +155,9 @@ shuffled_CM_data = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :)
         report_list(q, 4) = norm(norm_prediction_err, 2);
        
         % Prediction Analytic ==================================================
-        Dx_analytic = f0 + dfdx0 * sample;
+        Dx_analytic = f0 - dfdx0 * sample;
         Dx_analytic = Dx_analytic * Ts;  
-    
+
         [Phi, F, gamma]  = predmat(dfdx0, Np, Nc, Ts);
         analytic_traj = F*cur_state + Phi * controlInput + gamma * Dx_analytic;
         analytic_traj = reshape(analytic_traj, 3, []);
@@ -161,7 +174,7 @@ shuffled_CM_data = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :)
     report_list = array2table(report_list, 'VariableNames', ...
         {'Vx0', 'pred_err', 'proposed', 'nominal', 'analytic'});
 
-    x_axis = 0:1:20;
+    x_axis = 0:1:Np;
     if PLOT_DATA
         for s = 1:1:TEST_NUM
             figure(s)
@@ -221,12 +234,12 @@ shuffled_CM_data = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :)
     
         Fxf = 0;
         Fyf = 2 * Ca * (delta - ((y_dot+lf*yaw_dot)/ x_dot));
-        Fyr = 2 * Ca * (       - ((y_dot-lr*yaw_dot)/ x_dot));
+        Fyr = 2 * Ca * (      - ((y_dot-lr*yaw_dot)/ x_dot));
     
         del_Fxf = 0;
         del_Fxr = Frr - Frl;
     
-        x_ddot = ((Fxf * cos(delta) - Fyf * sin(delta)) + Frl+Frr) * 1/m + yaw_dot*y_dot;
+        x_ddot = ((Fxf * cos(delta) - Fyf * sin(delta)) + Frl+Frr) * 1/m + yaw_dot*y_dot -0;
         y_ddot = ((Fxf * sin(delta) + Fyf * cos(delta)) + Fyr) * 1/m - yaw_dot*x_dot;
         psi_ddot = ((lf * (Fxf * sin(delta) + Fyf * cos(delta)) - lr * Fyr) + w * (del_Fxf + del_Fxr)) / Iz;
     
@@ -235,8 +248,9 @@ shuffled_CM_data = shuffled_CM_data(1:floor(sample_num*TEST_TRAIN_DATA_RATE), :)
     %% dFdX; analytic gradient
     function dfdx = analy_dFdX(sample)
         Ca = 756.349/(0.6*pi/180);
-        m = 1644.80;
-        Iz = 2488.892;
+% Ca = 2802.731/(1.2*pi/180);
+        m = 1644.802;
+        Iz = 2488.893;
         lf = 1.240;
         lr = 1.510;
         w = 0.8;

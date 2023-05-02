@@ -1,0 +1,56 @@
+"2023-05-01 19:21:11,060 [INFO] Reporter Initialized!
+"2023-05-01 19:21:11,060 [INFO] Reporter LEVEL: info
+"2023-05-01 19:21:11,061 [INFO] Initializing all necessary class instances
+"2023-05-01 19:21:11,087 [INFO] Creating and Configuring MAPort...
+"2023-05-01 19:21:14,547 [INFO] Adding Start and StopTrigger...
+"2023-05-01 19:21:14,547 [INFO] Starting simulation...
+"2023-05-01 19:21:14,567 [INFO] capturing... (variable) capture_start: 1.0
+"2023-05-01 19:21:15,384 [INFO] capturing... (variable) capture_start: 51.0
+"2023-05-01 19:21:15,884 [INFO] capturing... (variable) capture_start: 101.0
+"2023-05-01 19:21:16,400 [INFO] capturing... (variable) capture_start: 151.0
+"2023-05-01 19:21:16,894 [INFO] capturing... (variable) capture_start: 201.0
+"2023-05-01 19:21:17,409 [INFO] capturing... (variable) capture_start: 251.0
+"2023-05-01 19:21:17,902 [INFO] capturing... (variable) capture_start: 301.0
+"2023-05-01 19:21:18,404 [INFO] capturing... (variable) capture_start: 351.0
+"2023-05-01 19:21:18,908 [INFO] capturing... (variable) capture_start: 401.0
+"2023-05-01 19:21:19,397 [INFO] capturing... (variable) capture_start: 451.0
+"2023-05-01 19:21:19,908 [INFO] capturing... (variable) capture_start: 501.0
+"2023-05-01 19:21:20,408 [INFO] capturing... (variable) capture_start: 551.0
+"2023-05-01 19:21:20,902 [INFO] capturing... (variable) capture_start: 601.0
+"2023-05-01 19:21:21,393 [INFO] capturing... (variable) capture_start: 651.0
+"2023-05-01 19:21:21,897 [INFO] capturing... (variable) capture_start: 701.0
+"2023-05-01 19:21:22,400 [INFO] capturing... (variable) capture_start: 751.0
+"2023-05-01 19:21:22,898 [INFO] capturing... (variable) capture_start: 801.0
+"2023-05-01 19:21:23,403 [INFO] capturing... (variable) capture_start: 851.0
+"2023-05-01 19:21:23,895 [INFO] capturing... (variable) capture_start: 901.0
+"2023-05-01 19:21:24,404 [INFO] capturing... (variable) capture_start: 951.0
+"2023-05-01 19:21:24,896 [INFO] capturing... (variable) capture_start: 1001.0
+"2023-05-01 19:21:25,402 [INFO] capturing... (variable) capture_start: 1051.0
+"2023-05-01 19:21:25,904 [INFO] capturing... (variable) capture_start: 1101.0
+"2023-05-01 19:21:26,399 [INFO] capturing... (variable) capture_start: 1151.0
+"2023-05-01 19:21:26,903 [INFO] capturing... (variable) capture_start: 1201.0
+"2023-05-01 19:21:27,401 [INFO] capturing... (variable) capture_start: 1251.0
+"2023-05-01 19:21:27,900 [INFO] capturing... (variable) capture_start: 1301.0
+"2023-05-01 19:21:28,394 [INFO] capturing... (variable) capture_start: 1351.0
+"2023-05-01 19:21:28,905 [INFO] capturing... (variable) capture_start: 1401.0
+"2023-05-01 19:21:29,400 [INFO] capturing... (variable) capture_start: 1451.0
+"2023-05-01 19:21:29,895 [INFO] capturing... (variable) capture_start: 1501.0
+"2023-05-01 19:21:30,407 [INFO] capturing... (variable) capture_start: 1551.0
+"2023-05-01 19:21:30,907 [INFO] capturing... (variable) capture_start: 1601.0
+"2023-05-01 19:21:31,397 [INFO] capturing... (variable) capture_start: 1651.0
+"2023-05-01 19:21:31,902 [INFO] capturing... (variable) capture_start: 1701.0
+"2023-05-01 19:21:32,399 [INFO] capturing... (variable) capture_start: 1751.0
+"2023-05-01 19:21:32,908 [INFO] capturing... (variable) capture_start: 1801.0
+"2023-05-01 19:21:33,395 [INFO] capturing... (variable) capture_start: 1851.0
+"2023-05-01 19:21:33,910 [INFO] capturing... (variable) capture_start: 1901.0
+"2023-05-01 19:21:34,399 [INFO] capturing... (variable) capture_start: 1951.0
+"2023-05-01 19:21:34,905 [INFO] capturing... (variable) capture_start: 2001.0
+"2023-05-01 19:21:35,396 [INFO] capturing... (variable) capture_start: 2051.0
+"2023-05-01 19:21:35,901 [INFO] capturing... (variable) capture_start: 2101.0
+"2023-05-01 19:21:36,394 [INFO] capturing... (variable) capture_start: 2151.0
+"2023-05-01 19:21:36,900 [INFO] capturing... (variable) capture_start: 2201.0
+"2023-05-01 19:21:37,395 [INFO] capturing... (variable) capture_start: 2251.0
+"2023-05-01 19:21:37,901 [INFO] capturing... (variable) capture_start: 2301.0
+"2023-05-01 19:21:38,407 [INFO] capturing... (variable) capture_start: 2351.0
+"2023-05-01 19:21:38,896 [INFO] capturing... (variable) capture_start: 2401.0
+"2023-05-01 19:21:39,326 [INFO] data post processing...

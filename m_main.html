@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>m_main</title><meta name="generator" content="MATLAB 9.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-05-02"><meta name="DC.source" content="m_main.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">prediction test</a></li></ul></div><pre class="codeinput"><span class="comment">% MAIN FUNCTION TO EXECUTE THE MATLAB FUNCTION</span>
+format <span class="string">shortEng</span>
+format <span class="string">compact</span>
+</pre><h2 id="2">prediction test</h2><pre class="codeinput">NN_NAME_LIST = [ <span class="keyword">...</span>
+    <span class="string">"0501_1040PM/0"</span>
+    <span class="string">"0501_1040PM/30"</span>
+    <span class="string">"0501_1040PM/113"</span>
+    <span class="string">"0501_1040PM/248"</span>
+    <span class="string">"0501_1040PM/FINAL"</span>
+    ]';
+
+seed = rng(<span class="string">"Shuffle"</span>).Seed;
+PLOT_DATA = true;
+
+<span class="keyword">for</span> NN_NAME = NN_NAME_LIST
+    rst = prediction_check(PLOT_DATA, seed, NN_NAME);
+
+    disp(rst)
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Loading Neural Network NN_NAME: 0501_1040PM/0
+Loading DataSet FILE_NAME: 0501_0725PM
+Prediction Start
+     Vx0      pred_err    proposed    nominal    analytic
+    ______    ________    ________    _______    ________
+    59.832     22.154       13.32     12.422       12.74 
+    59.155     29.856      14.868     20.703      21.055 
+    59.625     22.245      14.495     12.176      12.489 
+    59.802     22.138      13.516     12.381      12.698 
+    59.398     22.505      15.125     12.072      12.383 
+Loading Neural Network NN_NAME: 0501_1040PM/30
+Loading DataSet FILE_NAME: 0501_0725PM
+Prediction Start
+     Vx0      pred_err    proposed    nominal    analytic
+    ______    ________    ________    _______    ________
+    59.832     1.4233      8.8314      28.68       12.74 
+    59.155     1.2723      2.9165     155.88      21.055 
+    59.625     1.2646      7.9789     28.416      12.489 
+    59.802     1.3481      8.6771     28.633      12.698 
+    59.398     1.3042        7.72     27.979      12.383 
+Loading Neural Network NN_NAME: 0501_1040PM/113
+Loading DataSet FILE_NAME: 0501_0725PM
+Prediction Start
+     Vx0      pred_err    proposed    nominal    analytic
+    ______    ________    ________    _______    ________
+    59.832    0.92591      5.2671     12.257       12.74 
+    59.155    0.71231      1.9885     234.42      21.055 
+    59.625    0.82572      4.8809     11.997      12.489 
+    59.802    0.86763      5.1974     12.214      12.698 
+    59.398    0.87183      4.8248     11.896      12.383 
+Loading Neural Network NN_NAME: 0501_1040PM/248
+Loading DataSet FILE_NAME: 0501_0725PM
+Prediction Start
+     Vx0      pred_err    proposed    nominal    analytic
+    ______    ________    ________    _______    ________
+    59.832    0.42277       1.806     26.431       12.74 
+    59.155    0.80947      10.642     85.274      21.055 
+    59.625     0.2649      1.1226      15.74      12.489 
+    59.802    0.35737      1.6361     26.469      12.698 
+    59.398    0.25256     0.73072     15.805      12.383 
+Loading Neural Network NN_NAME: 0501_1040PM/FINAL
+Loading DataSet FILE_NAME: 0501_0725PM
+Prediction Start
+     Vx0      pred_err    proposed    nominal    analytic
+    ______    ________    ________    _______    ________
+    59.832    0.17784     0.94407     21.657       12.74 
+    59.155    0.72229      15.766     190.98      21.055 
+    59.625    0.25275      1.0116     20.432      12.489 
+    59.802    0.23483     0.95617     21.609      12.698 
+    59.398    0.23477      1.0092     20.277      12.383 
+</pre><img vspace="5" hspace="5" src="m_main_01.png" alt=""> <img vspace="5" hspace="5" src="m_main_02.png" alt=""> <img vspace="5" hspace="5" src="m_main_03.png" alt=""> <img vspace="5" hspace="5" src="m_main_04.png" alt=""> <img vspace="5" hspace="5" src="m_main_05.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB® R2022a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% MAIN FUNCTION TO EXECUTE THE MATLAB FUNCTION 
+format shortEng
+format compact
+%% prediction test
+NN_NAME_LIST = [ ...
+    "0501_1040PM/0"
+    "0501_1040PM/30"
+    "0501_1040PM/113"
+    "0501_1040PM/248"
+    "0501_1040PM/FINAL"
+    ]';
+
+seed = rng("Shuffle").Seed;
+PLOT_DATA = true;
+
+for NN_NAME = NN_NAME_LIST
+    rst = prediction_check(PLOT_DATA, seed, NN_NAME);
+    
+    disp(rst)
+end
+##### SOURCE END #####
+--></body></html>

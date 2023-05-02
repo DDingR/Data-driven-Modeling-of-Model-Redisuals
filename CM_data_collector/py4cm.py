@@ -88,7 +88,7 @@ def main():
 
             capture_result1 = []
             while DemoCapture.State != CaptureState.eFINISHED:
-                reporter.info(f"{capture_start/simtime} {capture_start}\r")
+                reporter.info(f"capturing... (variable) capture_start: {capture_start}")
 
                 DemoMAPort.WaitForTime(capture_start)
                 # save data for postprocessing
@@ -116,8 +116,8 @@ def main():
 
     finally:
 
-                
         # data proccessing
+        reporter.info("data post processing...")
         result = None
         for idx, capture_result in enumerate(capture_result1):
             if idx == 0: # pass first data
