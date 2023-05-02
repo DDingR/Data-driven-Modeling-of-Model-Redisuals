@@ -9,14 +9,14 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
         Ts = 0.01; Np = 100; Nc = Np;
     elseif nargin < 5
         seed = rng("Shuffle").Seed;
-        NN_NAME = "0501_1040PM/FINAL";
-% 0501_1040PM 0501_0137PM
+        NN_NAME = "0502_0351PM/303";
+% 0501_1040PM 0501_0137PM 0502_0351PM
 
         FILE_NAME = "0501_0133PM";
 % 0501_0725PM 0501_0133PM        
 
         TEST_NUM = 5;
-        Ts = 0.01; Np = 20; Nc = Np;
+        Ts = 0.01; Np = 100; Nc = Np;
         
         PLOT_DATA = true;
 %         PLOT_DATA = false;
