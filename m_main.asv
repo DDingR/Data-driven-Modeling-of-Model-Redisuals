@@ -10,13 +10,11 @@ format compact
 %     "0501_1040PM/FINAL"
 %     ]';
 
-NN_dir = "0501_1040PM";
-NN_info = dir("savemodel/" + NN_dir);
-NN_NAME_LIST = [];
-for l = 1:1:NN_num
-    NN_NAME_LIST = [NN_NAME_LIST NN_dir + "/" +  NN_info(2+l).name(1:end-5)];
-end
+NN_dir = "savemodel/0501_1040PM";
+NN_info = dir(NN_dir);
+NN_num = length(NN_info) - 2; 
 
+NN_NAME_LIST = NN_info.folder
 FILE_NAME = "0501_0133PM";
 
 seed = rng("Shuffle").Seed;

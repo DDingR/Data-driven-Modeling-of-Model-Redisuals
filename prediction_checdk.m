@@ -21,17 +21,17 @@ close all
         
         PLOT_DATA = true;
 %         PLOT_DATA = false;
+        
     end
 
-    %% overwrite constant!
+    % overwrite constant!
     seed = 566873882;
 %     NN_NAME = "0501_1040PM/FINAL";
 %     FILE_NAME = "0501_0133PM";
 %     TEST_NUM = 5;
-    Ts = 0.01; Np = 100; Nc = Np;
+%     Ts = 0.01; Np = 20; Nc = Np;
 %     TEST_TRAIN_DATA_RATE = 0.1;
 %     PLOT_DATA = true;
-
     %% simulation constants
     state_num = 3;
     control_num = 3;
@@ -52,14 +52,10 @@ close all
     fprintf("Loading DataSet FILE_NAME: %s\n", FILE_NAME)        
     shuffled_file_name = "processed_csv_data/shuffled_" + FILE_NAME +".csv";
     ori_file_name = "processed_csv_data/" +  FILE_NAME + ".csv";
-    shuffled_CM_data = readtable(shuffled_file_name);
-    CM_data = readtable(ori_file_name);
-    
-    shuffled_CM_data = table2array(shuffled_CM_datad
-    
+    shuffled_CM_data = csvread(shuffled_file_name);
+    CM_data = csvread(ori_file_name);
     [sample_num, var_num] = size(shuffled_CM_data);
-        tmp = readtable(raw_data_dir + "/" + idx + ".csv");
-        tmp = table2array(tmp);
+
     %% test data index peek
 %     test_data_index = randi(floor(sample_num*TEST_TRAIN_DATA_RATE), 1, TEST_NUM);
     test_data_num = floor(sample_num*TEST_TRAIN_DATA_RATE);
@@ -78,10 +74,10 @@ close all
     shuffled_CM_data = shuffled_CM_data';
 
     % pre-allocate matrices
-    prediction_Grad_list = zeros(1+Np, state_num*TEST_NUM); 
-    prediction_noGrad_list = zeros(1+Np, state_num*TEST_NUM); 
+    prediction_list = zeros(1+Np, state_num*TEST_NUM); 
+    prediction_nominal_list = zeros(1+Np, state_num*TEST_NUM); 
     prediction_analytic_list = zeros(1+Np, state_num*TEST_NUM);
-    obs_state_list = zeros(1+Np, state_num*TEST_NUM); 
+    ori_state_list = zeros(1+Np, state_num*TEST_NUM); 
     report_list = zeros(TEST_NUM, 5); 
     control_list = zeros(Np, control_num*TEST_NUM);
     
@@ -108,11 +104,9 @@ close all
             continue
         end
 
-        % analytic calc
         f0 = analy_F(sample);
         dfdx0 = analy_dFdX(sample);
     
-        % input preparation for dl tookbox
         input_sample = dlarray(sample, "CB");
         
         % NN Uncertainty Prediction Test =======================================
@@ -127,47 +121,69 @@ close all
             g(i,:) = tmp;
         end
         g0 = extractdata(predict(nn, input_sample));
-        
-        % current state
+    
         cur_state = sample(1:3);
     
-        % sample observed trajectory and control from CM
-        obs_traj = CM_data(test_idx:test_idx+Np-1, 1:end);
-        obs_state = obs_traj(:,4:6);
-        obs_state_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; obs_state];
-        report_list(q, 1) = obs_state(1) * 3.6;
+        ori_traj = CM_data(test_idx:test_idx+Np-1, 1:end);
+        ori_state = ori_traj(:,4:6);
+        ori_state_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; ori_state];
+        report_list(q, 1) = ori_state(1) * 3.6;
 
-        obs_control = obs_traj(:,7:9);
-        control_list(:, (q-1)*3+1:(q-1)*3+3) = obs_control;
-        obs_control = obs_control';
-        controlInput = reshape(obs_control, [], 1);
+        ori_control = ori_traj(:,7:9);
+        control_list(:, (q-1)*3+1:(q-1)*3+3) = ori_control;
+        ori_control = ori_control';
+        controlInput = reshape(ori_control, [], 1);
     
-        % nominal point
-        Dx_analytic = f0 - dfdx0 * sample;        
-        Dx_proposed = Dx_analytic + g0 - g * sample;
-        
+        % Prediction Proposed ==================================================
+        Dx = f0 - dfdx0 * sample + g0 - g * sample;
+        Dx = Dx * Ts;    
+
+        [Phi, F, gamma] = predmat(dfdx0+g, Np, Nc, Ts);
+        traj = F*cur_state + Phi * controlInput + gamma * Dx;
+
+        a = reshape(F*cur_state,3, []);
+        b = reshape(Phi *controlInput, 3,[]);
+        c = reshape(gamma *Dx, 3,[]);
+
+        traj = reshape(traj, 3, []);
+        traj = traj';
+        prediction_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; traj];
+    
+        total_prediction_err = ori_state - traj;
+        report_list(q, 3) = norm(total_prediction_err, 2);
+    
+        % Prediction Nominal ==================================================
+        Dx = f0 - dfdx0 * sample + g0 - g * sample;
+        Dx = Dx * Ts;
+    
+        [Phi, F, gamma] = predmat(dfdx0, Np, Nc, Ts);
+        traj = F*cur_state + Phi * controlInput + gamma * Dx;
+        traj = reshape(traj, 3, []);
+        traj = traj';
+        prediction_nominal_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; traj];
+    
+        norm_prediction_err = ori_state - traj;
+        report_list(q, 4) = norm(norm_prediction_err, 2);
+       
+        % Prediction Analytic ==================================================
+        Dx_analytic = f0 - dfdx0 * sample;
         Dx_analytic = Dx_analytic * Ts;  
-        Dx_proposed = Dx_proposed * Ts;    
 
-        % prediction calc main
-        [traj, err] = pred_err_calc(dfdx0+g, Dx_proposed, cur_state, obs_state, controlInput, Np, Nc, Ts);
-        prediction_Grad_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
-        report_list(q, 3) = norm(err, 2);
-
-        [traj, err] = pred_err_calc(dfdx0, Dx_proposed, cur_state, obs_state, controlInput, Np, Nc, Ts);
-        prediction_noGrad_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
-        report_list(q, 4) = norm(err, 2);
-
-        [traj, err] = pred_err_calc(dfdx0, Dx_analytic, cur_state, obs_state, controlInput, Np, Nc, Ts);
-        prediction_analytic_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
-        report_list(q, 5) = norm(err, 2);
+        [Phi, F, gamma]  = predmat(dfdx0, Np, Nc, Ts);
+        analytic_traj = F*cur_state + Phi * controlInput + gamma * Dx_analytic;
+        analytic_traj = reshape(analytic_traj, 3, []);
+        analytic_traj = analytic_traj';
+        prediction_analytic_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; analytic_traj];
+    
+        analytic_err = ori_state - analytic_traj;
+        report_list(q, 5) = norm(analytic_err, 2);
     
         q = q+1;
     end
     
     %% plot and report
     report_list = array2table(report_list, 'VariableNames', ...
-        {'Vx0', 'pred_err', 'proposed', 'noGrad', 'analytic'});
+        {'Vx0', 'pred_err', 'proposed', 'nominal', 'analytic'});
 
     x_axis = 0:1:Np;
     if PLOT_DATA
@@ -176,52 +192,41 @@ close all
             tiledlayout(3,1);
     
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+1)*3.6, 'r');
+            plot(x_axis, prediction_list(:, (s-1)*3+1)*3.6, 'r');
             hold on 
-            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+1)*3.6, 'k');        
+            plot(x_axis, prediction_nominal_list(:, (s-1)*3+1)*3.6, 'k');        
             plot(x_axis, prediction_analytic_list(:, (s-1)*3+1)*3.6, 'b');
-            plot(x_axis, obs_state_list(:, (s-1)*3+1)*3.6, 'g');
+            plot(x_axis, ori_state_list(:, (s-1)*3+1)*3.6, 'g');
             xlabel("Time Step [0.01ms]")
             ylabel("Vx [km/h]") 
             grid on
         
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+2)*3.6, 'r');
+            plot(x_axis, prediction_list(:, (s-1)*3+2)*3.6, 'r');
             hold on 
-            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+2)*3.6, 'k');   
+            plot(x_axis, prediction_nominal_list(:, (s-1)*3+2)*3.6, 'k');   
             plot(x_axis, prediction_analytic_list(:, (s-1)*3+2)*3.6, 'b');   
-            plot(x_axis, obs_state_list(:, (s-1)*3+2)*3.6, 'g');     
+            plot(x_axis, ori_state_list(:, (s-1)*3+2)*3.6, 'g');     
             xlabel("Time Step [0.01ms]")
             ylabel("Vy [km/h]") 
             grid on
         
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+3)*180/pi, 'r');
+            plot(x_axis, prediction_list(:, (s-1)*3+3)*180/pi, 'r');
             hold on
-            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+3)*180/pi, 'k');         
+            plot(x_axis, prediction_nominal_list(:, (s-1)*3+3)*180/pi, 'k');         
             plot(x_axis, prediction_analytic_list(:, (s-1)*3+3)*180/pi, 'b'); 
-            plot(x_axis, obs_state_list(:, (s-1)*3+3)*180/pi, 'g');
+            plot(x_axis, ori_state_list(:, (s-1)*3+3)*180/pi, 'g');
             xlabel("Time Step [0.01ms]")
             ylabel("YawRate [deg/s]") 
             grid on
     
-            lgd = legend('proposed prediction', 'without gradient prediction', 'analytic prediction', 'ground truth');
+            lgd = legend('proposed prediction', 'nominal prediction', 'analytic prediction', 'ground truth');
             lgd.Layout.Tile = 'south';
             lgd.NumColumns = 3;
         end
     end
     
-    %% prediction err calc
-    function [traj, total_prediction_err] = pred_err_calc(f, Dx, cur_state, obs_state, controlInput, Np, Nc, Ts)
-        [Phi, F, gamma] = predmat(f, Np, Nc, Ts);
-        traj = F*cur_state + Phi * controlInput + gamma * Dx;
-        traj = reshape(traj, 3, []);
-        traj = traj';
-
-        total_prediction_err = obs_state - traj;
-        traj = [cur_state'; traj];
-    end
-
     %% F; analytic system model
     function f = analy_F(sample)
         Ca = 756.349/(0.6*pi/180);
@@ -312,15 +317,15 @@ close all
         gamma = zeros(predStateSize, stateSize);
     
         pre_gamma = zeros(3,3);
-        for k = 1:1:Np
-            F((k-1)*stateSize+1:k*stateSize, ...
-                1:stateSize) = C * A^k;
-            gamma((k-1)*stateSize+1:k*stateSize, ...
-                1:stateSize) = A^(k-1) + pre_gamma;
-            pre_gamma = gamma((k-1)*stateSize+1:k*stateSize, 1:stateSize);
+        for i = 1:1:Np
+            F((i-1)*stateSize+1:i*stateSize, ...
+                1:stateSize) = C * A^i;
+            gamma((i-1)*stateSize+1:i*stateSize, ...
+                1:stateSize) = A^(i-1) + pre_gamma;
+            pre_gamma = gamma((i-1)*stateSize+1:i*stateSize, 1:stateSize);
             for j = 1:1:Nc
-                tmp =  C * A^(k-1) * B;
-                Phi((k+j-2)*stateSize+1:(k+j-1)*stateSize, ...
+                tmp =  C * A^(i-1) * B;
+                Phi((i+j-2)*stateSize+1:(i+j-1)*stateSize, ...
                     (j-1)*inputSize+1:j*inputSize) = tmp;
             end
         end

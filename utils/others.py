@@ -9,13 +9,13 @@ class NN(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         self.fc = nn.Sequential(
-            nn.Linear(6, 128),
+            nn.Linear(6, 32),
             nn.ReLU(),
-            nn.Linear(128, 128),
+            nn.Linear(32, 32),
             nn.ReLU(),
-            nn.Linear(128, 128),
+            nn.Linear(32, 32),
             nn.ReLU(),
-            nn.Linear(128, 3)
+            nn.Linear(32, 3)
         )
     def forward(self, x):
         x = self.fc(x)
