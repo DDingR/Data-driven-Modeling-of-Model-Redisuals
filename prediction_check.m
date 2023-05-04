@@ -9,14 +9,12 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
         Ts = 0.01; Np = 100; Nc = Np;
     elseif nargin < 5
         seed = rng("Shuffle").Seed;
-        NN_NAME = "0502_0351PM/303";
-% 0501_1040PM 0501_0137PM 0502_0351PM
+        NN_NAME = "0503_1051PM/99900";
 
-        FILE_NAME = "0501_0133PM";
-% 0501_0725PM 0501_0133PM        
+        FILE_NAME = "0503_0649PM_withFy";
 
         TEST_NUM = 5;
-        Ts = 0.01; Np = 100; Nc = Np;
+        Ts = 0.01; Np = 20; Nc = Np;
         
         PLOT_DATA = true;
 %         PLOT_DATA = false;
@@ -24,13 +22,17 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
 
     TEST_TRAIN_DATA_RATE = 0.1; Nc = Np;
     %% overwrite constant!
-    seed = 566873882;
+%     seed = 2000;
 %     NN_NAME = "0501_1040PM/FINAL";
 %     FILE_NAME = "0501_0133PM";
 %     TEST_NUM = 5;
 %     Ts = 0.01; Np = 100; Nc = Np;
 %     TEST_TRAIN_DATA_RATE = 0.1;
 %     PLOT_DATA = true;
+
+    if TEST_NUM > 5
+        PLOT_DATA = false;
+    end
 
     %% simulation constants
     state_num = 3;
@@ -69,13 +71,7 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
     %% target, prediction calc
     shuffled_index = shuffled_CM_data(:,1);
     ori_time_list = CM_data(:,2);
-
-    shuffled_CM_data = shuffled_CM_data(:,3:end);
     CM_data = CM_data(:,3:end);
-
-    err_target = shuffled_CM_data(:, 1:3)';
-    shuffled_CM_data = shuffled_CM_data(:, 4:end);
-    shuffled_CM_data = shuffled_CM_data';
 
     % pre-allocate matrices
     prediction_Grad_list = zeros(1+Np, state_num*TEST_NUM); 
@@ -101,7 +97,9 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
         
         if time_step_test
 %             fprintf("test index: %d\n", test_idx)
+            pred_target = CM_data(test_idx, 1:3);
             sample = CM_data(test_idx, 4:end);
+            pred_target = pred_target';
             sample = sample';
         else
 %             fprintf("non-proper index %d\n", test_idx)
@@ -116,19 +114,20 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
         input_sample = dlarray(sample, "CB");
         
         % NN Uncertainty Prediction Test =======================================
-        prediction_err = (err_target(:,q) - f0) - extractdata(predict(nn, input_sample));
+        g0 = extractdata(predict(nn, input_sample));        
+        prediction_err = pred_target - f0 - g0;
         report_list(q, 2) = norm(prediction_err, 2);  
     
         % NN Gradient Calc =====================================================
-        g = zeros(3,6);
+        dgdx0 = zeros(3,6);
         for i = 1:1:3
             [v,grad] = dlfeval(@model,nn,input_sample, i);
             tmp = extractdata(grad); % input_sample = extractdata(input_sample);
-            g(i,:) = tmp;
+            dgdx0(i,:) = tmp(1:6);
         end
-        g0 = extractdata(predict(nn, input_sample));
         
         % current state
+        sample = sample(1:6);
         cur_state = sample(1:3);
     
         % sample observed trajectory and control from CM
@@ -144,13 +143,13 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
     
         % nominal point
         Dx_analytic = f0 - dfdx0 * sample;        
-        Dx_proposed = Dx_analytic + g0 - g * sample;
+        Dx_proposed = Dx_analytic + g0 - dgdx0 * sample;
         
         Dx_analytic = Dx_analytic * Ts;  
         Dx_proposed = Dx_proposed * Ts;    
 
         % prediction calc main
-        [traj, err] = pred_err_calc(dfdx0+g, Dx_proposed, cur_state, obs_state, controlInput, Np, Nc, Ts);
+        [traj, err] = pred_err_calc(dfdx0+dgdx0, Dx_proposed, cur_state, obs_state, controlInput, Np, Nc, Ts);
         prediction_Grad_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
         report_list(q, 3) = norm(err, 2);
 
@@ -168,6 +167,7 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
     %% plot and report
     report_list = array2table(report_list, 'VariableNames', ...
         {'Vx0', 'pred_err', 'proposed', 'noGrad', 'analytic'});
+    varfun(@mean, report_list, 'InputVariables', @isnumeric)
 
     x_axis = 0:1:Np;
     if PLOT_DATA

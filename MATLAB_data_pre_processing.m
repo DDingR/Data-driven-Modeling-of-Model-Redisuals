@@ -2,7 +2,8 @@ function trg_data_dir = data_pre_processing(file_name, PLOT_DATA)
     %%
     if nargin < 2
         PLOT_DATA = false;
-        file_name = "0501_0133PM";
+%         file_name = "0503_0649PM";
+        file_name = "0503_0649PM";
     end
     %%
     raw_data_dir = "CM_data_collector/results/" + file_name;
@@ -31,9 +32,13 @@ function trg_data_dir = data_pre_processing(file_name, PLOT_DATA)
     %         # "Car.FyFL", "Car.FyFR", 
     %         "Car.FyRL", "Car.FyRR",
     %         "VC.Steer.Ang"
+%         'Car.SteerAngleFL', 'Car.SteerAngleFR'
+    
     %         ]
     %
     %   sample_data = [ax vx vy yawRate FRL FRR StrAng] ->  7
+    %% for steer
+    data(12,:) = (data(12,:) + data(13,:)) * 1/2;
     %% sampling
     sample_list = [5 6 7 12 8 9];
     dataset = zeros(sample_num, 11);

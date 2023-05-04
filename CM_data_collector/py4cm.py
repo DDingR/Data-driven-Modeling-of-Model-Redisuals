@@ -31,7 +31,8 @@ def main():
         "Car.FxRL", "Car.FxRR",
         # "Car.FyFL", "Car.FyFR", 
         "Car.FyRL", "Car.FyRR",
-        "VC.Steer.Ang"
+        # "VC.Steer.Ang"
+        'Car.SteerAngleFL', 'Car.SteerAngleFR'
         ]
 
     # reporter config

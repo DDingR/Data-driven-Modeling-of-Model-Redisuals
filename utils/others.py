@@ -9,13 +9,13 @@ class NN(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         self.fc = nn.Sequential(
-            nn.Linear(6, 32),
+            nn.Linear(8, 128),
             nn.ReLU(),
-            nn.Linear(32, 32),
+            nn.Linear(128, 128),
             nn.ReLU(),
-            nn.Linear(32, 32),
+            nn.Linear(128, 128),
             nn.ReLU(),
-            nn.Linear(32, 3)
+            nn.Linear(128, 3)
         )
     def forward(self, x):
         x = self.fc(x)
@@ -32,17 +32,17 @@ def np2tensor(x, device):
     x = torch.as_tensor(x, device=device, dtype=torch.float32)
     return x
 
-def saveONNX(model, device, episode, onnx_path):
+def saveONNX(model, reporter, device, episode, onnx_path):
     onnx_name = onnx_path + str(episode) + ".onnx"
     model.eval()
-    dummy_input = torch.randn(1,6,device=device, requires_grad=True)
+    dummy_input = torch.randn(1,8,device=device, requires_grad=True)
     torch.onnx.export(
         model,
         dummy_input,
         onnx_name,
         verbose=False
     )
-    print(f"[INFO] ONNX SAVED at {onnx_name}")
+    reporter.info(f"===== ONNX SAVED at {onnx_name}")
 # END =======================================
 # NEURAL NETWORK ============================
 

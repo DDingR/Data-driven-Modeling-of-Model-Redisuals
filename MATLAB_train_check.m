@@ -10,14 +10,27 @@ format compact
 %     "0501_1040PM/FINAL"
 %     ]';
 
-NN_dir = "0501_1040PM";
+NN_dir = "0503_0804PM";
 NN_info = dir("savemodel/" + NN_dir);
+NN_num = length(NN_info)-2
+NUM_LIST = [];
 NN_NAME_LIST = [];
 for l = 1:1:NN_num
-    NN_NAME_LIST = [NN_NAME_LIST NN_dir + "/" +  NN_info(2+l).name(1:end-5)];
+    num = NN_info(2+l).name(1:end-5);
+    NUM_LIST = [NUM_LIST str2double(num)];
+end
+NUM_LIST = sort(NUM_LIST);
+
+for l = 1:1:NN_num
+    tmp = num2str(NUM_LIST(l));
+    if strcmp(tmp, "NaN")
+        NN_NAME_LIST = [NN_NAME_LIST NN_dir + "/FINAL"];
+    else
+        NN_NAME_LIST = [NN_NAME_LIST NN_dir + "/" + tmp];
+    end
 end
 
-FILE_NAME = "0501_0133PM";
+FILE_NAME = "0503_0649PM";
 
 seed = rng("Shuffle").Seed;
 PLOT_DATA = false;

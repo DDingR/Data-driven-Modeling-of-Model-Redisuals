@@ -1,0 +1,37 @@
+"2023-05-03 19:12:48,668 [INFO] Reporter Initialized!
+"2023-05-03 19:12:48,668 [INFO] Reporter LEVEL: info
+"2023-05-03 19:12:50,027 [INFO] Loaded csv data is 0503_0649PM
+"2023-05-03 19:12:51,595 [INFO] None
+"2023-05-03 19:12:51,595 [INFO] Device(cuda) is working for train
+"2023-05-03 19:12:51,595 [INFO] Train Started
+"2023-05-03 19:12:51,621 [INFO] ===== ONNX SAVED at ./savemodel/0503_0712PM/0.onnx
+"2023-05-03 19:12:51,622 [INFO] ===== Saved non-trained network
+"2023-05-03 19:12:51,622 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:51,983 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:52,150 [INFO] ===== ONNX SAVED at ./savemodel/0503_0712PM/2.onnx
+"2023-05-03 19:12:52,150 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:52,369 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:52,527 [INFO] ===== ONNX SAVED at ./savemodel/0503_0712PM/4.onnx
+"2023-05-03 19:12:52,527 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:52,810 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:52,969 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:53,133 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:53,299 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:53,468 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:53,605 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:53,950 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:54,228 [INFO] ===== ONNX SAVED at ./savemodel/0503_0712PM/12.onnx
+"2023-05-03 19:12:54,228 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:54,413 [INFO] ===== ONNX SAVED at ./savemodel/0503_0712PM/13.onnx
+"2023-05-03 19:12:54,413 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:54,606 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:54,805 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:55,051 [INFO] ===== ONNX SAVED at ./savemodel/0503_0712PM/16.onnx
+"2023-05-03 19:12:55,051 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:55,348 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:55,528 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:55,838 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:56,120 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:56,388 [INFO] EPISODE {episode}, LOSS {loss}
+"2023-05-03 19:12:56,467 [INFO] train finished. 
+final loss: 2.107884407043457

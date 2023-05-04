@@ -1,0 +1,11 @@
+"2023-05-03 14:44:41,591 [INFO] Reporter Initialized!
+"2023-05-03 14:44:41,591 [INFO] Reporter LEVEL: info
+"2023-05-03 14:44:43,059 [INFO] Loaded csv data is 0501_0133PM
+"2023-05-03 14:44:43,106 [INFO] None
+"2023-05-03 14:44:43,106 [INFO] Device(cpu) is working for train
+"2023-05-03 14:44:43,106 [INFO] Train Started
+"2023-05-03 14:44:43,125 [INFO] Saved non-trained network
+"2023-05-03 14:44:43,125 [INFO] EPISODE 0, LOSS 22.089323043823242
+"2023-05-03 14:44:43,273 [INFO] LOSS FUNCTION PLOTTED at ./fig/0503_0244PMloss.png
+"2023-05-03 14:45:14,341 [INFO] train finished. 
+final loss: 0.0022175279445946217

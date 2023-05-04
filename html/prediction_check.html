@@ -1,0 +1,727 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>prediction_check</title><meta name="generator" content="MATLAB 9.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-05-04"><meta name="DC.source" content="prediction_check.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#3">constants</a></li><li><a href="#4">overwrite constant!</a></li><li><a href="#5">simulation constants</a></li><li><a href="#6">prediction test constants</a></li><li><a href="#7">network load</a></li><li><a href="#8">data load</a></li><li><a href="#9">test data index peek</a></li><li><a href="#10">target, prediction calc</a></li><li><a href="#11">plot and report</a></li><li><a href="#12">prediction err calc</a></li><li><a href="#13">F; analytic system model</a></li><li><a href="#14">dFdX; analytic gradient</a></li><li><a href="#15">function to calculate gradient</a></li><li><a href="#16">predicitive matrices; for non-augmented system</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np)
+</pre><pre class="codeinput">    close <span class="string">all</span>
+    fprintf(<span class="string">"\n======== Prediction Test at %s ========\n"</span>, char(datetime))
+</pre><pre class="codeoutput">
+======== Prediction Test at 2023-05-04 12:49:06 ========
+</pre><h2 id="3">constants</h2><pre class="codeinput">    <span class="keyword">if</span> nargin == 3
+        FILE_NAME = <span class="string">"0501_0133PM"</span>;
+
+        TEST_NUM = 5;
+        Ts = 0.01; Np = 100; Nc = Np;
+    <span class="keyword">elseif</span> nargin &lt; 5
+        seed = rng(<span class="string">"Shuffle"</span>).Seed;
+        NN_NAME = <span class="string">"0503_1051PM/99900"</span>;
+
+        FILE_NAME = <span class="string">"0503_0649PM_withFy"</span>;
+
+        TEST_NUM = 5;
+        Ts = 0.01; Np = 20; Nc = Np;
+
+        PLOT_DATA = true;
+<span class="comment">%         PLOT_DATA = false;</span>
+    <span class="keyword">end</span>
+
+    TEST_TRAIN_DATA_RATE = 0.1; Nc = Np;
+</pre><h2 id="4">overwrite constant!</h2><pre>   seed = 2000;
+   NN_NAME = "0501_1040PM/FINAL";
+   FILE_NAME = "0501_0133PM";
+   TEST_NUM = 5;
+   Ts = 0.01; Np = 100; Nc = Np;
+   TEST_TRAIN_DATA_RATE = 0.1;
+   PLOT_DATA = true;</pre><pre class="codeinput">    <span class="keyword">if</span> TEST_NUM &gt; 5
+        PLOT_DATA = false;
+    <span class="keyword">end</span>
+</pre><h2 id="5">simulation constants</h2><pre class="codeinput">    state_num = 3;
+    control_num = 3;
+</pre><h2 id="6">prediction test constants</h2><pre class="codeinput">    fprintf(<span class="string">"test seed: %d\n"</span>, seed)
+    rng(seed)
+    format <span class="string">shortEng</span>
+    format <span class="string">compact</span>
+</pre><pre class="codeoutput">test seed: 577199961
+</pre><h2 id="7">network load</h2><pre class="codeinput">    fprintf(<span class="string">"Loading Neural Network NN_NAME: %s\n"</span>, NN_NAME)
+    nn = <span class="string">"./savemodel/"</span> + NN_NAME + <span class="string">".onnx"</span>;
+    nn = importONNXNetwork( <span class="keyword">...</span>
+      nn,  TargetNetwork=<span class="string">"dlnetwork"</span>, InputDataFormats=<span class="string">"BC"</span>, OutputDataFormats=<span class="string">"BC"</span> <span class="keyword">...</span>
+    );
+    <span class="comment">% analyzeNetwork(nn)</span>
+</pre><pre class="codeoutput">Loading Neural Network NN_NAME: 0503_1051PM/99900
+</pre><h2 id="8">data load</h2><pre class="codeinput">    fprintf(<span class="string">"Loading DataSet FILE_NAME: %s\n"</span>, FILE_NAME)
+    shuffled_file_name = <span class="string">"processed_csv_data/shuffled_"</span> + FILE_NAME +<span class="string">".csv"</span>;
+    ori_file_name = <span class="string">"processed_csv_data/"</span> +  FILE_NAME + <span class="string">".csv"</span>;
+    shuffled_CM_data = readtable(shuffled_file_name);
+    CM_data = readtable(ori_file_name);
+
+    shuffled_CM_data = table2array(shuffled_CM_data);
+    CM_data = table2array(CM_data);
+
+    [sample_num, var_num] = size(shuffled_CM_data);
+</pre><pre class="codeoutput">Loading DataSet FILE_NAME: 0503_0649PM_withFy
+</pre><h2 id="9">test data index peek</h2><pre>   test_data_index = randi(floor(sample_num*TEST_TRAIN_DATA_RATE), 1, TEST_NUM);</pre><pre class="codeinput">    test_data_num = floor(sample_num*TEST_TRAIN_DATA_RATE);
+    shuffled_CM_data = shuffled_CM_data(1:test_data_num, :);
+<span class="comment">%     shuffled_CM_data = shuffled_CM_data(test_data_index,:);</span>
+</pre><h2 id="10">target, prediction calc</h2><pre class="codeinput">    shuffled_index = shuffled_CM_data(:,1);
+    ori_time_list = CM_data(:,2);
+    CM_data = CM_data(:,3:end);
+
+    <span class="comment">% pre-allocate matrices</span>
+    prediction_Grad_list = zeros(1+Np, state_num*TEST_NUM);
+    prediction_noGrad_list = zeros(1+Np, state_num*TEST_NUM);
+    prediction_analytic_list = zeros(1+Np, state_num*TEST_NUM);
+    obs_state_list = zeros(1+Np, state_num*TEST_NUM);
+    report_list = zeros(TEST_NUM, 5);
+    control_list = zeros(Np, control_num*TEST_NUM);
+
+    <span class="comment">% prediction start</span>
+    q = 1;
+    fprintf(<span class="string">"Prediction Start\n"</span>)
+<span class="comment">%     for sample = shuffled_CM_data</span>
+    <span class="keyword">while</span> true
+        <span class="keyword">if</span> q == TEST_NUM+1
+            <span class="keyword">break</span>
+        <span class="keyword">end</span>
+
+        test_idx = randi(length(shuffled_index));
+        time_step_list = ori_time_list(test_idx+1:test_idx+Np-1, 1) - ori_time_list(test_idx:test_idx+Np-2, 1);
+
+        time_step_test = sum(time_step_list &lt; 0.011) == Np-1;
+
+        <span class="keyword">if</span> time_step_test
+<span class="comment">%             fprintf("test index: %d\n", test_idx)</span>
+            pred_target = CM_data(test_idx, 1:3);
+            sample = CM_data(test_idx, 4:end);
+            pred_target = pred_target';
+            sample = sample';
+        <span class="keyword">else</span>
+<span class="comment">%             fprintf("non-proper index %d\n", test_idx)</span>
+            <span class="keyword">continue</span>
+        <span class="keyword">end</span>
+
+        <span class="comment">% analytic calc</span>
+        f0 = analy_F(sample);
+        dfdx0 = analy_dFdX(sample);
+
+        <span class="comment">% input preparation for dl tookbox</span>
+        input_sample = dlarray(sample, <span class="string">"CB"</span>);
+
+        <span class="comment">% NN Uncertainty Prediction Test =======================================</span>
+        g0 = extractdata(predict(nn, input_sample));
+        prediction_err = pred_target - f0 - g0;
+        report_list(q, 2) = norm(prediction_err, 2);
+
+        <span class="comment">% NN Gradient Calc =====================================================</span>
+        dgdx0 = zeros(3,6);
+        <span class="keyword">for</span> i = 1:1:3
+            [v,grad] = dlfeval(@model,nn,input_sample, i);
+            tmp = extractdata(grad); <span class="comment">% input_sample = extractdata(input_sample);</span>
+            dgdx0(i,:) = tmp(1:6);
+        <span class="keyword">end</span>
+
+        <span class="comment">% current state</span>
+        sample = sample(1:6);
+        cur_state = sample(1:3);
+
+        <span class="comment">% sample observed trajectory and control from CM</span>
+        obs_traj = CM_data(test_idx:test_idx+Np-1, 1:end);
+        obs_state = obs_traj(:,4:6);
+        obs_state_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; obs_state];
+        report_list(q, 1) = obs_state(1) * 3.6;
+
+        obs_control = obs_traj(:,7:9);
+        control_list(:, (q-1)*3+1:(q-1)*3+3) = obs_control;
+        obs_control = obs_control';
+        controlInput = reshape(obs_control, [], 1);
+
+        <span class="comment">% nominal point</span>
+        Dx_analytic = f0 - dfdx0 * sample;
+        Dx_proposed = Dx_analytic + g0 - dgdx0 * sample;
+
+        Dx_analytic = Dx_analytic * Ts;
+        Dx_proposed = Dx_proposed * Ts;
+
+        <span class="comment">% prediction calc main</span>
+        [traj, err] = pred_err_calc(dfdx0+dgdx0, Dx_proposed, cur_state, obs_state, controlInput, Np, Nc, Ts);
+        prediction_Grad_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
+        report_list(q, 3) = norm(err, 2);
+
+        [traj, err] = pred_err_calc(dfdx0, Dx_proposed, cur_state, obs_state, controlInput, Np, Nc, Ts);
+        prediction_noGrad_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
+        report_list(q, 4) = norm(err, 2);
+
+        [traj, err] = pred_err_calc(dfdx0, Dx_analytic, cur_state, obs_state, controlInput, Np, Nc, Ts);
+        prediction_analytic_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
+        report_list(q, 5) = norm(err, 2);
+
+        q = q+1;
+    <span class="keyword">end</span>
+</pre><pre class="codeoutput">Prediction Start
+</pre><h2 id="11">plot and report</h2><pre class="codeinput">    report_list = array2table(report_list, <span class="string">'VariableNames'</span>, <span class="keyword">...</span>
+        {<span class="string">'Vx0'</span>, <span class="string">'pred_err'</span>, <span class="string">'proposed'</span>, <span class="string">'noGrad'</span>, <span class="string">'analytic'</span>});
+    varfun(@mean, report_list, <span class="string">'InputVariables'</span>, @isnumeric)
+
+    x_axis = 0:1:Np;
+    <span class="keyword">if</span> PLOT_DATA
+        <span class="keyword">for</span> s = 1:1:TEST_NUM
+            figure(s)
+            tiledlayout(3,1);
+
+            nexttile
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+1)*3.6, <span class="string">'r'</span>);
+            hold <span class="string">on</span>
+            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+1)*3.6, <span class="string">'k'</span>);
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+1)*3.6, <span class="string">'b'</span>);
+            plot(x_axis, obs_state_list(:, (s-1)*3+1)*3.6, <span class="string">'g'</span>);
+            xlabel(<span class="string">"Time Step [0.01ms]"</span>)
+            ylabel(<span class="string">"Vx [km/h]"</span>)
+            grid <span class="string">on</span>
+
+            nexttile
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+2)*3.6, <span class="string">'r'</span>);
+            hold <span class="string">on</span>
+            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+2)*3.6, <span class="string">'k'</span>);
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+2)*3.6, <span class="string">'b'</span>);
+            plot(x_axis, obs_state_list(:, (s-1)*3+2)*3.6, <span class="string">'g'</span>);
+            xlabel(<span class="string">"Time Step [0.01ms]"</span>)
+            ylabel(<span class="string">"Vy [km/h]"</span>)
+            grid <span class="string">on</span>
+
+            nexttile
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+3)*180/pi, <span class="string">'r'</span>);
+            hold <span class="string">on</span>
+            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+3)*180/pi, <span class="string">'k'</span>);
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+3)*180/pi, <span class="string">'b'</span>);
+            plot(x_axis, obs_state_list(:, (s-1)*3+3)*180/pi, <span class="string">'g'</span>);
+            xlabel(<span class="string">"Time Step [0.01ms]"</span>)
+            ylabel(<span class="string">"YawRate [deg/s]"</span>)
+            grid <span class="string">on</span>
+
+            lgd = legend(<span class="string">'proposed prediction'</span>, <span class="string">'without gradient prediction'</span>, <span class="string">'analytic prediction'</span>, <span class="string">'ground truth'</span>);
+            lgd.Layout.Tile = <span class="string">'south'</span>;
+            lgd.NumColumns = 3;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><pre class="codeoutput">ans =
+  1&times;5 table
+    mean_Vx0    mean_pred_err    mean_proposed    mean_noGrad    mean_analytic
+    ________    _____________    _____________    ___________    _____________
+     48.354       0.018224          0.48637         0.37845         0.17701   
+</pre><img vspace="5" hspace="5" src="prediction_check_01.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_02.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_03.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_04.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_05.png" alt=""> <h2 id="12">prediction err calc</h2><pre class="codeinput">    <span class="keyword">function</span> [traj, total_prediction_err] = pred_err_calc(f, Dx, cur_state, obs_state, controlInput, Np, Nc, Ts)
+        [Phi, F, gamma] = predmat(f, Np, Nc, Ts);
+        traj = F*cur_state + Phi * controlInput + gamma * Dx;
+        traj = reshape(traj, 3, []);
+        traj = traj';
+
+        total_prediction_err = obs_state - traj;
+        traj = [cur_state'; traj];
+    <span class="keyword">end</span>
+</pre><h2 id="13">F; analytic system model</h2><pre class="codeinput">    <span class="keyword">function</span> f = analy_F(sample)
+        Ca = 756.349/(0.6*pi/180);
+        m = 1644.80;
+        Iz = 2488.892;
+        lf = 1.240;
+        lr = 1.510;
+        w = 0.8;
+
+        x_dot = sample(1);
+        y_dot = sample(2) ;
+        yaw_dot = sample(3);
+        delta = sample(4);
+        Frl = sample(5);
+        Frr = sample(6);
+
+        Fxf = 0;
+        Fyf = 2 * Ca * (delta - ((y_dot+lf*yaw_dot)/ x_dot));
+        Fyr = 2 * Ca * (      - ((y_dot-lr*yaw_dot)/ x_dot));
+
+        del_Fxf = 0;
+        del_Fxr = Frr - Frl;
+
+        x_ddot = ((Fxf * cos(delta) - Fyf * sin(delta)) + Frl+Frr) * 1/m + yaw_dot*y_dot -0;
+        y_ddot = ((Fxf * sin(delta) + Fyf * cos(delta)) + Fyr) * 1/m - yaw_dot*x_dot;
+        psi_ddot = ((lf * (Fxf * sin(delta) + Fyf * cos(delta)) - lr * Fyr) + w * (del_Fxf + del_Fxr)) / Iz;
+
+        f = [x_ddot; y_ddot; psi_ddot];
+    <span class="keyword">end</span>
+</pre><h2 id="14">dFdX; analytic gradient</h2><pre class="codeinput">    <span class="keyword">function</span> dfdx = analy_dFdX(sample)
+        Ca = 756.349/(0.6*pi/180);
+<span class="comment">% Ca = 2802.731/(1.2*pi/180);</span>
+        m = 1644.802;
+        Iz = 2488.893;
+        lf = 1.240;
+        lr = 1.510;
+        w = 0.8;
+
+        x_dot = sample(1);
+        y_dot = sample(2) ;
+        yaw_dot = sample(3);
+        delta = sample(4);
+        <span class="comment">% Frl = sample(:,4);</span>
+        <span class="comment">% Frr = sample(:,5);</span>
+
+        dfdx_op = [
+            [                                               -(2*Ca*sin(delta)*(y_dot + lf*yaw_dot))/(m*x_dot^2),             yaw_dot + (2*Ca*sin(delta))/(m*x_dot),                   y_dot + (2*Ca*lf*sin(delta))/(m*x_dot)]
+            [((2*Ca*(y_dot - lr*yaw_dot))/x_dot^2 + (2*Ca*cos(delta)*(y_dot + lf*yaw_dot))/x_dot^2)/m - yaw_dot,       -((2*Ca)/x_dot + (2*Ca*cos(delta))/x_dot)/m, ((2*Ca*lr)/x_dot - (2*Ca*lf*cos(delta))/x_dot)/m - x_dot]
+            [  -((2*Ca*lr*(y_dot - lr*yaw_dot))/x_dot^2 - (2*Ca*lf*cos(delta)*(y_dot + lf*yaw_dot))/x_dot^2)/Iz, ((2*Ca*lr)/x_dot - (2*Ca*lf*cos(delta))/x_dot)/Iz,   -((2*Ca*cos(delta)*lf^2)/x_dot + (2*Ca*lr^2)/x_dot)/Iz]
+        ];
+
+        dfdu_op = [
+            [      -(2*Ca*sin(delta) + 2*Ca*cos(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/m,   1/m,  1/m]
+            [       (2*Ca*cos(delta) - 2*Ca*sin(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/m,     0,    0]
+            [(2*Ca*lf*cos(delta) - 2*Ca*lf*sin(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/Iz, -w/Iz, w/Iz]
+        ];
+
+        dfdx = [dfdx_op dfdu_op];
+    <span class="keyword">end</span>
+</pre><h2 id="15">function to calculate gradient</h2><pre class="codeinput">    <span class="keyword">function</span> [y, g] = model(net, x, i)
+       y = forward(net, x);
+       y = y(i);
+       g = dlgradient(y, x);
+    <span class="keyword">end</span>
+</pre><h2 id="16">predicitive matrices; for non-augmented system</h2><pre class="codeinput">    <span class="keyword">function</span> [Phi, F, gamma] = predmat(h, Np, Nc, Ts)
+    <span class="comment">% X = F * x_current + Phi * controlSequence + gamma * Dx</span>
+    <span class="comment">%   Dx means linearization constants</span>
+    <span class="comment">%</span>
+    <span class="comment">% these matrices are not for augmented system!!!</span>
+        A = h(:,1:3);
+        B = h(:,4:6);
+        C = eye(3);
+
+        [stateSize, inputSize] = size(C);
+        predStateSize = stateSize * Np;
+        predInputSize = inputSize * Nc;
+
+        A = A*Ts+eye(stateSize);
+        B = B*Ts;
+
+        F = ones(predStateSize, stateSize);
+        Phi = zeros(predStateSize, predInputSize);
+        gamma = zeros(predStateSize, stateSize);
+
+        pre_gamma = zeros(3,3);
+        <span class="keyword">for</span> k = 1:1:Np
+            F((k-1)*stateSize+1:k*stateSize, <span class="keyword">...</span>
+                1:stateSize) = C * A^k;
+            gamma((k-1)*stateSize+1:k*stateSize, <span class="keyword">...</span>
+                1:stateSize) = A^(k-1) + pre_gamma;
+            pre_gamma = gamma((k-1)*stateSize+1:k*stateSize, 1:stateSize);
+            <span class="keyword">for</span> j = 1:1:Nc
+                tmp =  C * A^(k-1) * B;
+                Phi((k+j-2)*stateSize+1:(k+j-1)*stateSize, <span class="keyword">...</span>
+                    (j-1)*inputSize+1:j*inputSize) = tmp;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        Phi = Phi(1:predStateSize,1:predInputSize);
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">ans =
+  5&times;5 table
+     Vx0      pred_err    proposed    noGrad     analytic
+    ______    ________    ________    _______    ________
+     50.44    0.017092    0.37626     0.27676    0.14464 
+    40.787    0.026957    0.72988     0.53389    0.24694 
+    49.944    0.014191    0.28498      0.3061    0.12236 
+    50.493    0.014951    0.67047     0.45838    0.23091 
+    50.107    0.017927    0.37027     0.31709    0.14017 
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np)
+    close all
+    fprintf("\n======== Prediction Test at %s ========\n", char(datetime))
+    %% constants
+    if nargin == 3
+        FILE_NAME = "0501_0133PM";
+
+        TEST_NUM = 5;
+        Ts = 0.01; Np = 100; Nc = Np;
+    elseif nargin < 5
+        seed = rng("Shuffle").Seed;
+        NN_NAME = "0503_1051PM/99900";
+
+        FILE_NAME = "0503_0649PM_withFy";
+
+        TEST_NUM = 5;
+        Ts = 0.01; Np = 20; Nc = Np;
+        
+        PLOT_DATA = true;
+%         PLOT_DATA = false;
+    end
+
+    TEST_TRAIN_DATA_RATE = 0.1; Nc = Np;
+    %% overwrite constant!
+%     seed = 2000;
+%     NN_NAME = "0501_1040PM/FINAL";
+%     FILE_NAME = "0501_0133PM";
+%     TEST_NUM = 5;
+%     Ts = 0.01; Np = 100; Nc = Np;
+%     TEST_TRAIN_DATA_RATE = 0.1;
+%     PLOT_DATA = true;
+
+    if TEST_NUM > 5
+        PLOT_DATA = false;
+    end
+
+    %% simulation constants
+    state_num = 3;
+    control_num = 3;
+    %% prediction test constants
+    fprintf("test seed: %d\n", seed)
+    rng(seed)
+    format shortEng
+    format compact
+    %% network load
+    fprintf("Loading Neural Network NN_NAME: %s\n", NN_NAME)    
+    nn = "./savemodel/" + NN_NAME + ".onnx";
+    nn = importONNXNetwork( ...
+      nn,  TargetNetwork="dlnetwork", InputDataFormats="BC", OutputDataFormats="BC" ...
+    );
+    % analyzeNetwork(nn)
+    
+    %% data load
+    fprintf("Loading DataSet FILE_NAME: %s\n", FILE_NAME)        
+    shuffled_file_name = "processed_csv_data/shuffled_" + FILE_NAME +".csv";
+    ori_file_name = "processed_csv_data/" +  FILE_NAME + ".csv";
+    shuffled_CM_data = readtable(shuffled_file_name);
+    CM_data = readtable(ori_file_name);
+    
+    shuffled_CM_data = table2array(shuffled_CM_data);
+    CM_data = table2array(CM_data);    
+
+    [sample_num, var_num] = size(shuffled_CM_data);
+
+    %% test data index peek
+%     test_data_index = randi(floor(sample_num*TEST_TRAIN_DATA_RATE), 1, TEST_NUM);
+    test_data_num = floor(sample_num*TEST_TRAIN_DATA_RATE);
+    shuffled_CM_data = shuffled_CM_data(1:test_data_num, :);
+%     shuffled_CM_data = shuffled_CM_data(test_data_index,:);
+
+    %% target, prediction calc
+    shuffled_index = shuffled_CM_data(:,1);
+    ori_time_list = CM_data(:,2);
+    CM_data = CM_data(:,3:end);
+
+    % pre-allocate matrices
+    prediction_Grad_list = zeros(1+Np, state_num*TEST_NUM); 
+    prediction_noGrad_list = zeros(1+Np, state_num*TEST_NUM); 
+    prediction_analytic_list = zeros(1+Np, state_num*TEST_NUM);
+    obs_state_list = zeros(1+Np, state_num*TEST_NUM); 
+    report_list = zeros(TEST_NUM, 5); 
+    control_list = zeros(Np, control_num*TEST_NUM);
+    
+    % prediction start
+    q = 1;
+    fprintf("Prediction Start\n")            
+%     for sample = shuffled_CM_data
+    while true
+        if q == TEST_NUM+1
+            break
+        end
+        
+        test_idx = randi(length(shuffled_index));
+        time_step_list = ori_time_list(test_idx+1:test_idx+Np-1, 1) - ori_time_list(test_idx:test_idx+Np-2, 1);
+
+        time_step_test = sum(time_step_list < 0.011) == Np-1;
+        
+        if time_step_test
+%             fprintf("test index: %d\n", test_idx)
+            pred_target = CM_data(test_idx, 1:3);
+            sample = CM_data(test_idx, 4:end);
+            pred_target = pred_target';
+            sample = sample';
+        else
+%             fprintf("non-proper index %d\n", test_idx)
+            continue
+        end
+
+        % analytic calc
+        f0 = analy_F(sample);
+        dfdx0 = analy_dFdX(sample);
+    
+        % input preparation for dl tookbox
+        input_sample = dlarray(sample, "CB");
+        
+        % NN Uncertainty Prediction Test =======================================
+        g0 = extractdata(predict(nn, input_sample));        
+        prediction_err = pred_target - f0 - g0;
+        report_list(q, 2) = norm(prediction_err, 2);  
+    
+        % NN Gradient Calc =====================================================
+        dgdx0 = zeros(3,6);
+        for i = 1:1:3
+            [v,grad] = dlfeval(@model,nn,input_sample, i);
+            tmp = extractdata(grad); % input_sample = extractdata(input_sample);
+            dgdx0(i,:) = tmp(1:6);
+        end
+        
+        % current state
+        sample = sample(1:6);
+        cur_state = sample(1:3);
+    
+        % sample observed trajectory and control from CM
+        obs_traj = CM_data(test_idx:test_idx+Np-1, 1:end);
+        obs_state = obs_traj(:,4:6);
+        obs_state_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; obs_state];
+        report_list(q, 1) = obs_state(1) * 3.6;
+
+        obs_control = obs_traj(:,7:9);
+        control_list(:, (q-1)*3+1:(q-1)*3+3) = obs_control;
+        obs_control = obs_control';
+        controlInput = reshape(obs_control, [], 1);
+    
+        % nominal point
+        Dx_analytic = f0 - dfdx0 * sample;        
+        Dx_proposed = Dx_analytic + g0 - dgdx0 * sample;
+        
+        Dx_analytic = Dx_analytic * Ts;  
+        Dx_proposed = Dx_proposed * Ts;    
+
+        % prediction calc main
+        [traj, err] = pred_err_calc(dfdx0+dgdx0, Dx_proposed, cur_state, obs_state, controlInput, Np, Nc, Ts);
+        prediction_Grad_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
+        report_list(q, 3) = norm(err, 2);
+
+        [traj, err] = pred_err_calc(dfdx0, Dx_proposed, cur_state, obs_state, controlInput, Np, Nc, Ts);
+        prediction_noGrad_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
+        report_list(q, 4) = norm(err, 2);
+
+        [traj, err] = pred_err_calc(dfdx0, Dx_analytic, cur_state, obs_state, controlInput, Np, Nc, Ts);
+        prediction_analytic_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
+        report_list(q, 5) = norm(err, 2);
+    
+        q = q+1;
+    end
+    
+    %% plot and report
+    report_list = array2table(report_list, 'VariableNames', ...
+        {'Vx0', 'pred_err', 'proposed', 'noGrad', 'analytic'});
+    varfun(@mean, report_list, 'InputVariables', @isnumeric)
+
+    x_axis = 0:1:Np;
+    if PLOT_DATA
+        for s = 1:1:TEST_NUM
+            figure(s)
+            tiledlayout(3,1);
+    
+            nexttile
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+1)*3.6, 'r');
+            hold on 
+            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+1)*3.6, 'k');        
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+1)*3.6, 'b');
+            plot(x_axis, obs_state_list(:, (s-1)*3+1)*3.6, 'g');
+            xlabel("Time Step [0.01ms]")
+            ylabel("Vx [km/h]") 
+            grid on
+        
+            nexttile
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+2)*3.6, 'r');
+            hold on 
+            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+2)*3.6, 'k');   
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+2)*3.6, 'b');   
+            plot(x_axis, obs_state_list(:, (s-1)*3+2)*3.6, 'g');     
+            xlabel("Time Step [0.01ms]")
+            ylabel("Vy [km/h]") 
+            grid on
+        
+            nexttile
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+3)*180/pi, 'r');
+            hold on
+            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+3)*180/pi, 'k');         
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+3)*180/pi, 'b'); 
+            plot(x_axis, obs_state_list(:, (s-1)*3+3)*180/pi, 'g');
+            xlabel("Time Step [0.01ms]")
+            ylabel("YawRate [deg/s]") 
+            grid on
+    
+            lgd = legend('proposed prediction', 'without gradient prediction', 'analytic prediction', 'ground truth');
+            lgd.Layout.Tile = 'south';
+            lgd.NumColumns = 3;
+        end
+    end
+    
+    %% prediction err calc
+    function [traj, total_prediction_err] = pred_err_calc(f, Dx, cur_state, obs_state, controlInput, Np, Nc, Ts)
+        [Phi, F, gamma] = predmat(f, Np, Nc, Ts);
+        traj = F*cur_state + Phi * controlInput + gamma * Dx;
+        traj = reshape(traj, 3, []);
+        traj = traj';
+
+        total_prediction_err = obs_state - traj;
+        traj = [cur_state'; traj];
+    end
+
+    %% F; analytic system model
+    function f = analy_F(sample)
+        Ca = 756.349/(0.6*pi/180);
+        m = 1644.80;
+        Iz = 2488.892;
+        lf = 1.240;
+        lr = 1.510;
+        w = 0.8;
+    
+        x_dot = sample(1);
+        y_dot = sample(2) ;   
+        yaw_dot = sample(3);
+        delta = sample(4);
+        Frl = sample(5);
+        Frr = sample(6);
+    
+        Fxf = 0;
+        Fyf = 2 * Ca * (delta - ((y_dot+lf*yaw_dot)/ x_dot));
+        Fyr = 2 * Ca * (      - ((y_dot-lr*yaw_dot)/ x_dot));
+    
+        del_Fxf = 0;
+        del_Fxr = Frr - Frl;
+    
+        x_ddot = ((Fxf * cos(delta) - Fyf * sin(delta)) + Frl+Frr) * 1/m + yaw_dot*y_dot -0;
+        y_ddot = ((Fxf * sin(delta) + Fyf * cos(delta)) + Fyr) * 1/m - yaw_dot*x_dot;
+        psi_ddot = ((lf * (Fxf * sin(delta) + Fyf * cos(delta)) - lr * Fyr) + w * (del_Fxf + del_Fxr)) / Iz;
+    
+        f = [x_ddot; y_ddot; psi_ddot];
+    end
+    %% dFdX; analytic gradient
+    function dfdx = analy_dFdX(sample)
+        Ca = 756.349/(0.6*pi/180);
+% Ca = 2802.731/(1.2*pi/180);
+        m = 1644.802;
+        Iz = 2488.893;
+        lf = 1.240;
+        lr = 1.510;
+        w = 0.8;
+        
+        x_dot = sample(1);
+        y_dot = sample(2) ;   
+        yaw_dot = sample(3);
+        delta = sample(4);        
+        % Frl = sample(:,4);
+        % Frr = sample(:,5);
+        
+        dfdx_op = [
+            [                                               -(2*Ca*sin(delta)*(y_dot + lf*yaw_dot))/(m*x_dot^2),             yaw_dot + (2*Ca*sin(delta))/(m*x_dot),                   y_dot + (2*Ca*lf*sin(delta))/(m*x_dot)]
+            [((2*Ca*(y_dot - lr*yaw_dot))/x_dot^2 + (2*Ca*cos(delta)*(y_dot + lf*yaw_dot))/x_dot^2)/m - yaw_dot,       -((2*Ca)/x_dot + (2*Ca*cos(delta))/x_dot)/m, ((2*Ca*lr)/x_dot - (2*Ca*lf*cos(delta))/x_dot)/m - x_dot]
+            [  -((2*Ca*lr*(y_dot - lr*yaw_dot))/x_dot^2 - (2*Ca*lf*cos(delta)*(y_dot + lf*yaw_dot))/x_dot^2)/Iz, ((2*Ca*lr)/x_dot - (2*Ca*lf*cos(delta))/x_dot)/Iz,   -((2*Ca*cos(delta)*lf^2)/x_dot + (2*Ca*lr^2)/x_dot)/Iz]
+        ];
+        
+        dfdu_op = [ 
+            [      -(2*Ca*sin(delta) + 2*Ca*cos(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/m,   1/m,  1/m]
+            [       (2*Ca*cos(delta) - 2*Ca*sin(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/m,     0,    0]
+            [(2*Ca*lf*cos(delta) - 2*Ca*lf*sin(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/Iz, -w/Iz, w/Iz]
+        ];
+        
+        dfdx = [dfdx_op dfdu_op];
+    end
+    
+    %% function to calculate gradient
+    function [y, g] = model(net, x, i)
+       y = forward(net, x);
+       y = y(i);
+       g = dlgradient(y, x);
+    end
+    
+    %% predicitive matrices; for non-augmented system
+    function [Phi, F, gamma] = predmat(h, Np, Nc, Ts)
+    % X = F * x_current + Phi * controlSequence + gamma * Dx
+    %   Dx means linearization constants
+    %
+    % these matrices are not for augmented system!!!
+        A = h(:,1:3);
+        B = h(:,4:6);
+        C = eye(3);
+        
+        [stateSize, inputSize] = size(C);
+        predStateSize = stateSize * Np;
+        predInputSize = inputSize * Nc;
+    
+        A = A*Ts+eye(stateSize);
+        B = B*Ts;
+    
+        F = ones(predStateSize, stateSize);
+        Phi = zeros(predStateSize, predInputSize);
+        gamma = zeros(predStateSize, stateSize);
+    
+        pre_gamma = zeros(3,3);
+        for k = 1:1:Np
+            F((k-1)*stateSize+1:k*stateSize, ...
+                1:stateSize) = C * A^k;
+            gamma((k-1)*stateSize+1:k*stateSize, ...
+                1:stateSize) = A^(k-1) + pre_gamma;
+            pre_gamma = gamma((k-1)*stateSize+1:k*stateSize, 1:stateSize);
+            for j = 1:1:Nc
+                tmp =  C * A^(k-1) * B;
+                Phi((k+j-2)*stateSize+1:(k+j-1)*stateSize, ...
+                    (j-1)*inputSize+1:j*inputSize) = tmp;
+            end
+        end
+        
+        Phi = Phi(1:predStateSize,1:predInputSize);
+    end
+end
+##### SOURCE END #####
+--></body></html>
