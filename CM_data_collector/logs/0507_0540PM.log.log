@@ -1,0 +1,14 @@
+"2023-05-07 17:40:00,201 [INFO] Reporter Initialized!
+"2023-05-07 17:40:00,201 [INFO] Reporter LEVEL: info
+"2023-05-07 17:40:02,203 [INFO] Initializing all necessary class instances
+"2023-05-07 17:40:02,227 [INFO] Creating and Configuring MAPort...
+"2023-05-07 17:40:05,686 [INFO] Adding Start and StopTrigger...
+"2023-05-07 17:40:05,686 [INFO] Starting simulation...
+"2023-05-07 17:40:05,706 [INFO] capturing... (variable) capture_start: 1.0
+"2023-05-07 17:40:06,462 [INFO] capturing... (variable) capture_start: 51.0
+"2023-05-07 17:40:06,981 [INFO] capturing... (variable) capture_start: 101.0
+"2023-05-07 17:40:07,498 [INFO] capturing... (variable) capture_start: 151.0
+"2023-05-07 17:40:07,994 [INFO] capturing... (variable) capture_start: 201.0
+"2023-05-07 17:40:08,501 [INFO] capturing... (variable) capture_start: 251.0
+"2023-05-07 17:40:08,993 [INFO] capturing... (variable) capture_start: 301.0
+"2023-05-07 17:40:09,497 [INFO] capturing... (variable) capture_start: 351.0

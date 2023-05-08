@@ -1,0 +1,39 @@
+"2023-05-07 17:05:08,447 [INFO] Reporter Initialized!
+"2023-05-07 17:05:08,447 [INFO] Reporter LEVEL: info
+"2023-05-07 17:05:10,449 [INFO] Initializing all necessary class instances
+"2023-05-07 17:05:10,478 [INFO] Creating and Configuring MAPort...
+"2023-05-07 17:05:13,947 [INFO] Adding Start and StopTrigger...
+"2023-05-07 17:05:36,852 [INFO] Reporter Initialized!
+"2023-05-07 17:05:36,852 [INFO] Reporter LEVEL: info
+"2023-05-07 17:05:38,853 [INFO] Initializing all necessary class instances
+"2023-05-07 17:05:38,877 [INFO] Creating and Configuring MAPort...
+"2023-05-07 17:05:42,335 [INFO] Adding Start and StopTrigger...
+"2023-05-07 17:05:42,335 [INFO] Starting simulation...
+"2023-05-07 17:05:42,376 [INFO] capturing... (variable) capture_start: 1.0
+"2023-05-07 17:05:43,176 [INFO] capturing... (variable) capture_start: 51.0
+"2023-05-07 17:05:43,689 [INFO] capturing... (variable) capture_start: 101.0
+"2023-05-07 17:05:44,202 [INFO] capturing... (variable) capture_start: 151.0
+"2023-05-07 17:05:44,705 [INFO] capturing... (variable) capture_start: 201.0
+"2023-05-07 17:05:45,203 [INFO] capturing... (variable) capture_start: 251.0
+"2023-05-07 17:05:45,701 [INFO] capturing... (variable) capture_start: 301.0
+"2023-05-07 17:05:46,198 [INFO] capturing... (variable) capture_start: 351.0
+"2023-05-07 17:05:46,697 [INFO] capturing... (variable) capture_start: 401.0
+"2023-05-07 17:05:47,195 [INFO] capturing... (variable) capture_start: 451.0
+"2023-05-07 17:05:47,697 [INFO] capturing... (variable) capture_start: 501.0
+"2023-05-07 17:05:48,200 [INFO] capturing... (variable) capture_start: 551.0
+"2023-05-07 17:05:48,696 [INFO] Terminating simulation...
+"2023-05-07 17:05:48,696 [INFO] data post processing...
+"2023-05-07 17:05:48,731 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0505PM/demo1/1.csv
+"2023-05-07 17:05:48,763 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0505PM/demo1/2.csv
+"2023-05-07 17:05:48,795 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0505PM/demo1/3.csv
+"2023-05-07 17:05:48,825 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0505PM/demo1/4.csv
+"2023-05-07 17:05:48,855 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0505PM/demo1/5.csv
+"2023-05-07 17:05:48,886 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0505PM/demo1/6.csv
+"2023-05-07 17:05:48,917 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0505PM/demo1/7.csv
+"2023-05-07 17:05:48,948 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0505PM/demo1/8.csv
+"2023-05-07 17:05:48,979 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0505PM/demo1/9.csv
+"2023-05-07 17:05:49,009 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0505PM/demo1/10.csv
+"2023-05-07 17:05:49,069 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0505PM/demo1/11.csv
+"2023-05-07 17:05:51,687 [INFO] Initializing all necessary class instances
+"2023-05-07 17:05:51,687 [WARNING] TestbenchPortException occured:
+"2023-05-07 17:05:51,687 [WARNING] VendorCodeDescription: Could not find Testbench Implementation in Manifestfolder

@@ -1,0 +1,9 @@
+"2023-05-07 19:24:38,176 [INFO] Reporter Initialized!
+"2023-05-07 19:24:38,176 [INFO] Reporter LEVEL: info
+"2023-05-07 19:24:38,569 [INFO] Loaded csv data is 0507_0621PM
+"2023-05-07 19:24:41,519 [INFO] None
+"2023-05-07 19:24:41,519 [INFO] Device(cuda) is working for train
+"2023-05-07 19:24:41,520 [INFO] Train Started
+"2023-05-07 19:24:41,699 [INFO] ===== ONNX SAVED at ./savemodel/0507_0724PM/0.onnx
+"2023-05-07 19:24:41,699 [INFO] ===== Saved non-trained network
+"2023-05-07 19:24:41,700 [INFO] EPISODE 0, LOSS 2676.51513671875

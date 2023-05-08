@@ -6,18 +6,23 @@ import numpy as np
 # START =====================================
 # NEURAL NETWORK ============================
 class NN(nn.Module):
-    def __init__(self) -> None:
+    def __init__(self, input_shape) -> None:
         super().__init__()
         self.fc = nn.Sequential(
-            nn.Linear(8, 128),
+            nn.Linear(input_shape, 32),
             nn.ReLU(),
-            nn.Linear(128, 128),
+            nn.Linear(32, 1024),
             nn.ReLU(),
-            nn.Linear(128, 128),
+            nn.Linear(1024, 1024),
             nn.ReLU(),
-            nn.Linear(128, 3)
+            nn.Linear(1024, 1024),
+            nn.ReLU(),            
+            nn.Linear(1024, 1024),
+            nn.ReLU(),                      
+            nn.Linear(1024, 3)
         )
     def forward(self, x):
+        x = torch.nn.functional.normalize(x, dim=-1)
         x = self.fc(x)
         return x
 
@@ -32,10 +37,10 @@ def np2tensor(x, device):
     x = torch.as_tensor(x, device=device, dtype=torch.float32)
     return x
 
-def saveONNX(model, reporter, device, episode, onnx_path):
+def saveONNX(model, input_shape, reporter, device, episode, onnx_path):
     onnx_name = onnx_path + str(episode) + ".onnx"
     model.eval()
-    dummy_input = torch.randn(1,8,device=device, requires_grad=True)
+    dummy_input = torch.randn(1,input_shape,device=device, requires_grad=True)
     torch.onnx.export(
         model,
         dummy_input,

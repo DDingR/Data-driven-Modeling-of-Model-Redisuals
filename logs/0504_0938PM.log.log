@@ -1,0 +1,11 @@
+"2023-05-04 21:38:09,827 [INFO] Reporter Initialized!
+"2023-05-04 21:38:09,827 [INFO] Reporter LEVEL: info
+"2023-05-04 21:38:11,748 [INFO] Loaded csv data is 0504_0300PM
+"2023-05-04 21:38:12,829 [INFO] None
+"2023-05-04 21:38:12,829 [INFO] Device(cuda) is working for train
+"2023-05-04 21:38:12,830 [INFO] Train Started
+"2023-05-04 21:38:47,162 [INFO] Reporter Initialized!
+"2023-05-04 21:38:47,162 [INFO] Reporter LEVEL: info
+"2023-05-04 21:38:49,019 [INFO] Loaded csv data is 0504_0300PM
+"2023-05-04 21:38:50,096 [INFO] None
+"2023-05-04 21:38:50,096 [INFO] Device(cuda) is working for train

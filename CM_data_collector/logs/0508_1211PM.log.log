@@ -1,0 +1,22 @@
+"2023-05-08 12:11:24,919 [INFO] Reporter Initialized!
+"2023-05-08 12:11:24,920 [INFO] Reporter LEVEL: info
+"2023-05-08 12:11:26,922 [INFO] Initializing all necessary class instances
+"2023-05-08 12:11:26,947 [INFO] Creating and Configuring MAPort...
+"2023-05-08 12:11:30,350 [INFO] TestRun: testSet, simtime: 300.0
+"2023-05-08 12:11:30,410 [INFO] Adding Start and StopTrigger...
+"2023-05-08 12:11:30,410 [INFO] Starting simulation...
+"2023-05-08 12:11:30,430 [INFO] capturing... (variable) capture_start: 1.0
+"2023-05-08 12:11:31,186 [INFO] capturing... (variable) capture_start: 51.0
+"2023-05-08 12:11:31,695 [INFO] capturing... (variable) capture_start: 101.0
+"2023-05-08 12:11:32,221 [INFO] capturing... (variable) capture_start: 151.0
+"2023-05-08 12:11:32,722 [INFO] capturing... (variable) capture_start: 201.0
+"2023-05-08 12:11:33,222 [INFO] capturing... (variable) capture_start: 251.0
+"2023-05-08 12:11:33,728 [INFO] capturing... (variable) capture_start: 301.0
+"2023-05-08 12:11:34,222 [INFO] Terminating simulation...
+"2023-05-08 12:11:34,222 [INFO] data post processing...
+"2023-05-08 12:11:34,256 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0508_1211PM/testSet/1.csv
+"2023-05-08 12:11:34,291 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0508_1211PM/testSet/2.csv
+"2023-05-08 12:11:34,321 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0508_1211PM/testSet/3.csv
+"2023-05-08 12:11:34,351 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0508_1211PM/testSet/4.csv
+"2023-05-08 12:11:34,382 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0508_1211PM/testSet/5.csv
+"2023-05-08 12:11:34,442 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0508_1211PM/testSet/6.csv

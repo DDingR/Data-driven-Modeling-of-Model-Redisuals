@@ -1,0 +1,23 @@
+"2023-05-07 16:41:20,941 [INFO] Reporter Initialized!
+"2023-05-07 16:41:20,941 [INFO] Reporter LEVEL: info
+"2023-05-07 16:41:30,762 [INFO] Reporter Initialized!
+"2023-05-07 16:41:30,762 [INFO] Reporter LEVEL: info
+"2023-05-07 16:41:30,762 [INFO] Initializing all necessary class instances
+"2023-05-07 16:41:30,783 [INFO] Creating and Configuring MAPort...
+"2023-05-07 16:41:34,241 [INFO] Adding Start and StopTrigger...
+"2023-05-07 16:41:34,241 [INFO] Starting simulation...
+"2023-05-07 16:41:34,282 [INFO] capturing... (variable) capture_start: 1.0
+"2023-05-07 16:41:35,079 [INFO] capturing... (variable) capture_start: 51.0
+"2023-05-07 16:41:35,591 [INFO] capturing... (variable) capture_start: 101.0
+"2023-05-07 16:41:36,111 [INFO] capturing... (variable) capture_start: 151.0
+"2023-05-07 16:41:36,608 [INFO] capturing... (variable) capture_start: 201.0
+"2023-05-07 16:41:37,112 [INFO] capturing... (variable) capture_start: 251.0
+"2023-05-07 16:41:37,614 [INFO] capturing... (variable) capture_start: 301.0
+"2023-05-07 16:41:38,103 [INFO] capturing... (variable) capture_start: 351.0
+"2023-05-07 16:41:38,613 [INFO] capturing... (variable) capture_start: 401.0
+"2023-05-07 16:41:39,104 [INFO] capturing... (variable) capture_start: 451.0
+"2023-05-07 16:41:39,603 [INFO] capturing... (variable) capture_start: 501.0
+"2023-05-07 16:41:40,112 [INFO] capturing... (variable) capture_start: 551.0
+"2023-05-07 16:41:40,603 [INFO] Terminating simulation...
+"2023-05-07 16:41:40,603 [INFO] data post processing...
+"2023-05-07 16:41:40,639 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0441PMdemo1/1.csv

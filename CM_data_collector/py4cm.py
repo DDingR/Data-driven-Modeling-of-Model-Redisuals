@@ -1,6 +1,6 @@
 from reporter import *
 
-from time import strftime, localtime, time
+from time import strftime, localtime, time, sleep
 import sys
 import os
 import numpy as np
@@ -12,47 +12,49 @@ from ASAM.XIL.Interfaces.Testbench.MAPort.Enum.MAPortState import MAPortState
 from ASAM.XIL.Interfaces.Testbench.Common.Error.TestbenchPortException import TestbenchPortException
 from ASAM.XIL.Interfaces.Testbench.Common.Capturing.Enum.CaptureState import CaptureState
 
-def main():
+
+# rec config
+trg_num = 0
+# simtime_list = [500.0, 550.0, 120.0]
+# testrun_list = ["FreeSpace", "demo1", "demo1_1"]
+testrun_list = ["testSet"]
+simtime_list = [50.0]
+down_sample_rate = 10
+var_list = [
+    "Time", 
+    "Car.ax", "Car.ay", "Car.YawAcc",
+    "Car.vx", "Car.vy", "Car.YawRate",
+    # "Car.Aero.Frx_1.x",
+    # "Car.WheelSpd_FL", "Car.WheelSpd_FR", "Car.WheelSpd_RL", "Car.WheelSpd_RR",
+    "Car.FxRL", "Car.FxRR",
+    "Car.FyRL", "Car.FyRR",
+    'Car.SteerAngleFL', 'Car.SteerAngleFR',
+    "Car.FxFL", "Car.FxFR",
+    "Car.FyFL", "Car.FyFR", 
+    'Car.SlipAngleFL', 'Car.SlipAngleFR',
+    'Car.SlipAngleRL', 'Car.SlipAngleRR',
+    ]
+
+# reporter config
+cur_dir = os.getcwd()
+cur_time = strftime("%m%d_%I%M%p", localtime(time()))
+log_name = cur_time + ".log"
+reporter = reporter_loader("info", log_name)
+
+
+def collectCM():
     DemoMAPort = None
 
-    # rec config
-    simtime = 5000.0
-    capture_start = 1.0
-    trg_testrun = "demo1"
-    rec_num = 1
-    down_sample_rate = 10
-    var_list = [
-        "Time", 
-        "Car.ax", "Car.ay", "Car.YawAcc",
-        "Car.vx", "Car.vy", "Car.YawRate",
-        # "Car.Aero.Frx_1.x",
-        # "Car.WheelSpd_FL", "Car.WheelSpd_FR", "Car.WheelSpd_RL", "Car.WheelSpd_RR",
-        # "Car.FxFL", "Car.FxFR", 
-        "Car.FxRL", "Car.FxRR",
-        # "Car.FyFL", "Car.FyFR", 
-        "Car.FyRL", "Car.FyRR",
-        # "VC.Steer.Ang"
-        'Car.SteerAngleFL', 'Car.SteerAngleFR'
-        ]
-
-    # reporter config
-    cur_dir = os.getcwd()
-    cur_time = strftime("%m%d_%I%M%p", localtime(time()))
-    log_name = cur_time + ".log"
-    reporter = reporter_loader("info", log_name)
-    os.makedirs(cur_dir + "/results/" + cur_time)
-
-    # MAPort config
-    MAPortConfigFile = "Config.xml"
-
     try:
+        sleep(2)
+        # MAPort config
+        MAPortConfigFile = "Config.xml"
         # Initialize all necessary class instances
         reporter.info("Initializing all necessary class instances")
         MyTestbenchFactory = TestbenchFactory()
         MyTestbench = MyTestbenchFactory.CreateVendorSpecificTestBench("IPG", "CarMaker", "12.0")
         MyMAPortFactory = MyTestbench.MAPortFactory
-        MyWatcherFactory = MyTestbench.WatcherFactory
-        MyDurationFactory = MyTestbench.DurationFactory
+
 
         reporter.info("Creating and Configuring MAPort...")
         DemoMAPort = MyMAPortFactory.CreateMAPort("DemoMAPort")
@@ -60,9 +62,14 @@ def main():
         # Start CarMaker instance using a Project directory as Configuration parameter
         DemoMAPortConfig = DemoMAPort.LoadConfiguration(MAPortConfigFile)
         DemoMAPort.Configure(DemoMAPortConfig, False)
+        
+        MyWatcherFactory = MyTestbench.WatcherFactory
+        MyDurationFactory = MyTestbench.DurationFactory
 
-        # SIM ============================================================================================
-        for i in range(rec_num):
+        for simtime, trg_testrun in zip(simtime_list, testrun_list):
+            reporter.info(f"TestRun: {trg_testrun}, simtime: {simtime}")
+            capture_start = 1.0
+
             # Capture config
             DemoCapture = DemoMAPort.CreateCapture("captureTask")
             DemoCapture.Variables = var_list
@@ -110,45 +117,57 @@ def main():
             # DemoCapture.Stop()
             # SIM ============================================================================================
 
+            if capture_result1 != None:
+                # data proccessing
+                reporter.info("data post processing...")
+                result = None
+                csv_dir_name = cur_dir + "/results/" + cur_time +  "/" + trg_testrun
+                os.makedirs(csv_dir_name) 
+                last_idx = len(capture_result1)               
+                for idx, capture_result in enumerate(capture_result1):
+                    if idx == 0 or idx == last_idx: # pass first and last data
+                        continue
+                    
+                    tmp_list = np.array([])
+                    for trg_var in var_list:
+                        tmp = capture_result.ExtractSignalValue(trg_var)
+                        tmp = np.array(tmp.FcnValues.Value)
+                        tmp_list = np.append(tmp_list, tmp)
+                    tmp_list = np.reshape(tmp_list, (len(var_list), -1))
+                    # if result is None:
+                    #     result = tmp_list
+                    # else:
+                    #     result = np.append(result, tmp_list, axis=1)
+                    
+                    result = np.array(tmp_list)
+                    csv_name = csv_dir_name + "/" + str(idx) + ".csv"
+                    np.savetxt(csv_name, result, delimiter=",")
+                    reporter.info(f"Saved at {csv_name}")
+
+                # result = np.array(result)
+                        # size: (var_number, sample_number)
+                
+                # csv_name = cur_dir + "/results/" + cur_time + "/" + str(i) + ".csv"
+                # np.savetxt(csv_name, result, delimiter=",")
+
+                capture_result1 = None
 
     except TestbenchPortException as ex:
         reporter.warning("TestbenchPortException occured:")
         reporter.warning("VendorCodeDescription: %s" % ex.VendorCodeDescription)
 
     finally:
-
-        # data proccessing
-        reporter.info("data post processing...")
-        result = None
-        for idx, capture_result in enumerate(capture_result1):
-            if idx == 0: # pass first data
-                continue
-
-            tmp_list = np.array([])
-            for trg_var in var_list:
-                tmp = capture_result.ExtractSignalValue(trg_var)
-                tmp = np.array(tmp.FcnValues.Value)
-                tmp_list = np.append(tmp_list, tmp)
-            tmp_list = np.reshape(tmp_list, (len(var_list), -1))
-            # if result is None:
-            #     result = tmp_list
-            # else:
-            #     result = np.append(result, tmp_list, axis=1)
-            
-            result = np.array(tmp_list)
-            csv_name = cur_dir + "/results/" + cur_time + "/" + str(idx) + ".csv"
-            np.savetxt(csv_name, result, delimiter=",")
-
-
-        # result = np.array(result)
-                # size: (var_number, sample_number)
-        
-        # csv_name = cur_dir + "/results/" + cur_time + "/" + str(i) + ".csv"
-        # np.savetxt(csv_name, result, delimiter=",")
-
         if DemoMAPort != None:
             DemoMAPort.Dispose()
             DemoMAPort = None
 
+def main():
+
+
+    # SIM ============================================================================================
+    # simtime = simtime_list[trg_num]
+    # trg_testrun = testrun_list[trg_num]
+    collectCM()
+        
 if __name__ == "__main__":
     main()

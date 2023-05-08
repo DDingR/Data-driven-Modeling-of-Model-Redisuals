@@ -1,0 +1,12 @@
+"2023-05-04 16:03:55,528 [INFO] Reporter Initialized!
+"2023-05-04 16:03:55,528 [INFO] Reporter LEVEL: info
+"2023-05-04 16:03:56,860 [INFO] Loaded csv data is 0504_0300PM
+"2023-05-04 16:03:58,015 [INFO] None
+"2023-05-04 16:03:58,015 [INFO] Device(cuda) is working for train
+"2023-05-04 16:03:58,015 [INFO] Train Started
+"2023-05-04 16:03:58,027 [INFO] ===== ONNX SAVED at ./savemodel/0504_0403PM/0.onnx
+"2023-05-04 16:03:58,027 [INFO] ===== Saved non-trained network
+"2023-05-04 16:03:58,027 [INFO] EPISODE 0, LOSS 79.61156463623047
+"2023-05-04 16:03:58,206 [INFO] train finished. 
+final loss: 100.1348876953125
+"2023-05-04 16:03:58,210 [INFO] ===== ONNX SAVED at ./savemodel/0504_0403PM/FINAL100000.onnx

@@ -1,50 +1,58 @@
-function trg_data_dir = data_pre_processing(file_name, PLOT_DATA)
+function trg_data_dir = MATLAB_data_pre_processing(file_name, PLOT_DATA)
     %%
+    close all
     if nargin < 2
         PLOT_DATA = false;
 %         file_name = "0503_0649PM";
-        file_name = "0503_0649PM";
+        file_name = "0508_1258PM";
     end
     %%
-    raw_data_dir = "CM_data_collector/results/" + file_name;
-%      raw_data_dir = "CM_data_collector/results/0501_0133PM";
+    root_file = "CM_data_collector/results/" + file_name;
 
-    file_info = dir(raw_data_dir);
-    file_num = length(file_info) - 2; % ignore ".", ".." files
+    root_info = dir(root_file);
+    root_num = length(root_info);
 
     data = [];
-    for idx = 1:1:file_num
-        tmp = readtable(raw_data_dir + "/" + idx + ".csv");
-        tmp = table2array(tmp);
-        data = [data tmp];
-    end
 
-    [var_num, sample_num] = size(data);
-    %% DATA INFO
-    %     var_list = [
-    %         "Time", 
-    %         "Car.ax", "Car.ay", "Car.YawAcc",
-    %         "Car.vx", "Car.vy", "Car.YawRate",
-    %         # "Car.Aero.Frx_1.x",
-    %         # "Car.WheelSpd_FL", "Car.WheelSpd_FR", "Car.WheelSpd_RL", "Car.WheelSpd_RR",
-    %         # "Car.FxFL", "Car.FxFR", 
-    %         "Car.FxRL", "Car.FxRR",
-    %         # "Car.FyFL", "Car.FyFR", 
-    %         "Car.FyRL", "Car.FyRR",
-    %         "VC.Steer.Ang"
-%         'Car.SteerAngleFL', 'Car.SteerAngleFR'
+    for j = 3:root_num
+%     for j = 
+    %      raw_data_dir = "CM_data_collector/results/0501_0133PM";
+        raw_data_dir = root_file + "/" +  root_info(j).name;
+        
+
+        file_info = dir(raw_data_dir);
+        file_num = length(file_info) - 2; % ignore ".", ".." files
     
-    %         ]
-    %
-    %   sample_data = [ax vx vy yawRate FRL FRR StrAng] ->  7
+        for idx = 1:1:file_num
+            tmp = readtable(raw_data_dir + "/" + idx + ".csv");
+            tmp = table2array(tmp);
+            data = [data tmp];
+        end
+    end
+        [var_num, sample_num] = size(data);
+    %% DATA INFO
+%     var_list = [
+%         "Time", 
+%         "Car.ax", "Car.ay", "Car.YawAcc",
+%         "Car.vx", "Car.vy", "Car.YawRate",
+%         # "Car.Aero.Frx_1.x",
+%         # "Car.WheelSpd_FL", "Car.WheelSpd_FR", "Car.WheelSpd_RL", "Car.WheelSpd_RR",
+%         "Car.FxRL", "Car.FxRR",
+%         "Car.FyRL", "Car.FyRR",
+%         'Car.SteerAngleFL', 'Car.SteerAngleFR',
+%         "Car.FxFL", "Car.FxFR",
+%         "Car.FyFL", "Car.FyFR", 
+%         'Car.SlipAngleFL', 'Car.SlipAngleFR',
+%         'Car.SlipAngleRL', 'Car.SlipAngleRR',
+%         ]
     %% for steer
     data(12,:) = (data(12,:) + data(13,:)) * 1/2;
     %% sampling
-    sample_list = [5 6 7 12 8 9];
-    dataset = zeros(sample_num, 11);
+    sample_list = [1   2 3 4   5 6 7   12 8 9 ];%   18 19 20 21];
+    dataset = zeros(sample_num, length(sample_list) + 1);
     for i = 1:1:sample_num
     %     dataset(i,:) = [data(2,i+1) data(sample_list, i)'];
-        dataset(i,:) = [i data(1:4,i)' data(sample_list, i)'];
+        dataset(i,:) = [i data(sample_list, i)'];
     end
     trg_data = array2table(dataset);
     trg_data_dir = "processed_csv_data/" + file_name + ".csv";
@@ -60,7 +68,7 @@ function trg_data_dir = data_pre_processing(file_name, PLOT_DATA)
     
     %% plotter
     if PLOT_DATA
-        for i = 2:1:var_num
+        for i = 1:1:var_num
             figure(i)
             plot(data(1,:), data(i,:))
         end

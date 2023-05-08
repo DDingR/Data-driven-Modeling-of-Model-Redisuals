@@ -8,13 +8,25 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
         TEST_NUM = 5;
         Ts = 0.01; Np = 100; Nc = Np;
     elseif nargin < 5
-        seed = rng("Shuffle").Seed;
-        NN_NAME = "0503_1051PM/99900";
+%         seed = rng("Shuffle").Seed;
+%         seed = randi(1000);
+%         NN_NAME = "0504_0950PM/FINAL100000";
+%         NN_NAME = "0507_0544PM/FINAL100000";
+%         NN_NAME = "0507_0737PM/FINAL100000"; %0507_0542PM
+%         NN_NAME = "0507_0752PM/FINAL100000"; % 0507_0746PM
+        NN_NAME = "0508_1246PM/23000"; % 0507_0746PM
 
-        FILE_NAME = "0503_0649PM_withFy";
 
-        TEST_NUM = 5;
-        Ts = 0.01; Np = 20; Nc = Np;
+%         FILE_NAME = "0503_0649PM_withFy";
+%         FILE_NAME = "0507_0516PM";
+% FILE_NAME = "0507_0542PM"; % FreeSpace        
+% FILE_NAME = "0507_0621PM";
+% FILE_NAME = "0507_0746PM"; % FreeSpace demo1 demo1_1
+FILE_NAME = "0508_1258PM"; % testSet
+
+
+TEST_NUM = 50;
+        Ts = 0.01; Np = 10; Nc = Np;
         
         PLOT_DATA = true;
 %         PLOT_DATA = false;
@@ -22,17 +34,7 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
 
     TEST_TRAIN_DATA_RATE = 0.1; Nc = Np;
     %% overwrite constant!
-%     seed = 2000;
-%     NN_NAME = "0501_1040PM/FINAL";
-%     FILE_NAME = "0501_0133PM";
-%     TEST_NUM = 5;
-%     Ts = 0.01; Np = 100; Nc = Np;
-%     TEST_TRAIN_DATA_RATE = 0.1;
-%     PLOT_DATA = true;
-
-    if TEST_NUM > 5
-        PLOT_DATA = false;
-    end
+    seed = 20135;
 
     %% simulation constants
     state_num = 3;
@@ -60,11 +62,13 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
     shuffled_CM_data = table2array(shuffled_CM_data);
     CM_data = table2array(CM_data);    
 
-    [sample_num, var_num] = size(shuffled_CM_data);
+    [data_num, var_num] = size(shuffled_CM_data);
+    [ori_data_num, var_num] = size(CM_data);
+    
 
     %% test data index peek
 %     test_data_index = randi(floor(sample_num*TEST_TRAIN_DATA_RATE), 1, TEST_NUM);
-    test_data_num = floor(sample_num*TEST_TRAIN_DATA_RATE);
+    test_data_num = floor(data_num*TEST_TRAIN_DATA_RATE);
     shuffled_CM_data = shuffled_CM_data(1:test_data_num, :);
 %     shuffled_CM_data = shuffled_CM_data(test_data_index,:);
 
@@ -90,7 +94,10 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
             break
         end
         
-        test_idx = randi(length(shuffled_index));
+        test_idx = shuffled_index(randi(test_data_num));
+        if test_idx+Np > ori_data_num
+            continue
+        end
         time_step_list = ori_time_list(test_idx+1:test_idx+Np-1, 1) - ori_time_list(test_idx:test_idx+Np-2, 1);
 
         time_step_test = sum(time_step_list < 0.011) == Np-1;
@@ -112,7 +119,8 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
     
         % input preparation for dl tookbox
         input_sample = dlarray(sample, "CB");
-        
+%         input_sample = dlarray(sample/norm(sample), "CB");
+
         % NN Uncertainty Prediction Test =======================================
         g0 = extractdata(predict(nn, input_sample));        
         prediction_err = pred_target - f0 - g0;
@@ -131,12 +139,12 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
         cur_state = sample(1:3);
     
         % sample observed trajectory and control from CM
-        obs_traj = CM_data(test_idx:test_idx+Np-1, 1:end);
+        obs_traj = CM_data(test_idx:test_idx+Np, 1:end);
         obs_state = obs_traj(:,4:6);
-        obs_state_list(:, (q-1)*3+1:(q-1)*3+3) = [cur_state'; obs_state];
-        report_list(q, 1) = obs_state(1) * 3.6;
+        obs_state_list(:, (q-1)*3+1:(q-1)*3+3) = obs_state;
+        report_list(q, 1) = obs_state(1) * 3.6; % initial velx
 
-        obs_control = obs_traj(:,7:9);
+        obs_control = obs_traj(1:end-1,7:9);
         control_list(:, (q-1)*3+1:(q-1)*3+3) = obs_control;
         obs_control = obs_control';
         controlInput = reshape(obs_control, [], 1);
@@ -153,7 +161,7 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
         prediction_Grad_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
         report_list(q, 3) = norm(err, 2);
 
-        [traj, err] = pred_err_calc(dfdx0, Dx_proposed, cur_state, obs_state, controlInput, Np, Nc, Ts);
+        [traj, err] = pred_err_calc(dfdx0, Dx_proposed + (dgdx0 * sample)*Ts, cur_state, obs_state, controlInput, Np, Nc, Ts);
         prediction_noGrad_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
         report_list(q, 4) = norm(err, 2);
 
@@ -167,42 +175,64 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
     %% plot and report
     report_list = array2table(report_list, 'VariableNames', ...
         {'Vx0', 'pred_err', 'proposed', 'noGrad', 'analytic'});
-    varfun(@mean, report_list, 'InputVariables', @isnumeric)
+    report_list = varfun(@mean, report_list, 'InputVariables', @isnumeric);
+
+    traj_err = [ ...
+        sqrt(mean(reshape(mean((prediction_Grad_list - obs_state_list).^2), [], TEST_NUM),2))'
+        sqrt(mean(reshape(mean((prediction_noGrad_list - obs_state_list).^2), [], TEST_NUM),2))'
+        sqrt(mean(reshape(mean((prediction_analytic_list - obs_state_list).^2), [], TEST_NUM),2))'
+    ]';
+    traj_err = array2table(traj_err, 'VariableNames', ...
+        {'proposed', 'noGrad', 'analytic'})
+
+    one_step_err = [...
+        sqrt(mean(reshape((prediction_Grad_list(2,:) - obs_state_list(2,:)).^2, [], TEST_NUM),2))'
+        sqrt(mean(reshape((prediction_noGrad_list(2,:) - obs_state_list(2,:)).^2, [], TEST_NUM),2))'
+        sqrt(mean(reshape((prediction_analytic_list(2,:) - obs_state_list(2,:)).^2, [], TEST_NUM),2))'
+    ]';
+    one_step_err = array2table(one_step_err, 'VariableNames', ...
+        {'proposed', 'noGrad', 'analytic'})
 
     x_axis = 0:1:Np;
     if PLOT_DATA
-        for s = 1:1:TEST_NUM
+        if TEST_NUM <= 5
+            PLOT_NUM = TEST_NUM;
+        else
+            PLOT_NUM = 5;
+        end
+
+        for s = 1:1:PLOT_NUM
             figure(s)
             tiledlayout(3,1);
     
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+1)*3.6, 'r');
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+1), 'r--o');
             hold on 
-            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+1)*3.6, 'k');        
-            plot(x_axis, prediction_analytic_list(:, (s-1)*3+1)*3.6, 'b');
-            plot(x_axis, obs_state_list(:, (s-1)*3+1)*3.6, 'g');
+            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+1), 'k');        
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+1), 'b*');
+            plot(x_axis, obs_state_list(:, (s-1)*3+1), 'g');
             xlabel("Time Step [0.01ms]")
-            ylabel("Vx [km/h]") 
+            ylabel("Vx [m/s]") 
             grid on
         
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+2)*3.6, 'r');
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+2), 'r--o');
             hold on 
-            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+2)*3.6, 'k');   
-            plot(x_axis, prediction_analytic_list(:, (s-1)*3+2)*3.6, 'b');   
-            plot(x_axis, obs_state_list(:, (s-1)*3+2)*3.6, 'g');     
+            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+2), 'k');   
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+2), 'b*');   
+            plot(x_axis, obs_state_list(:, (s-1)*3+2), 'g');     
             xlabel("Time Step [0.01ms]")
-            ylabel("Vy [km/h]") 
+            ylabel("Vy [m/s]") 
             grid on
         
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+3)*180/pi, 'r');
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+3), 'r--o');
             hold on
-            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+3)*180/pi, 'k');         
-            plot(x_axis, prediction_analytic_list(:, (s-1)*3+3)*180/pi, 'b'); 
-            plot(x_axis, obs_state_list(:, (s-1)*3+3)*180/pi, 'g');
+            plot(x_axis, prediction_noGrad_list(:, (s-1)*3+3), 'k');         
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+3), 'b*'); 
+            plot(x_axis, obs_state_list(:, (s-1)*3+3), 'g');
             xlabel("Time Step [0.01ms]")
-            ylabel("YawRate [deg/s]") 
+            ylabel("YawRate [rad/s]") 
             grid on
     
             lgd = legend('proposed prediction', 'without gradient prediction', 'analytic prediction', 'ground truth');
@@ -211,120 +241,12 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
         end
     end
     
-    %% prediction err calc
-    function [traj, total_prediction_err] = pred_err_calc(f, Dx, cur_state, obs_state, controlInput, Np, Nc, Ts)
-        [Phi, F, gamma] = predmat(f, Np, Nc, Ts);
-        traj = F*cur_state + Phi * controlInput + gamma * Dx;
-        traj = reshape(traj, 3, []);
-        traj = traj';
 
-        total_prediction_err = obs_state - traj;
-        traj = [cur_state'; traj];
-    end
-
-    %% F; analytic system model
-    function f = analy_F(sample)
-        Ca = 756.349/(0.6*pi/180);
-        m = 1644.80;
-        Iz = 2488.892;
-        lf = 1.240;
-        lr = 1.510;
-        w = 0.8;
-    
-        x_dot = sample(1);
-        y_dot = sample(2) ;   
-        yaw_dot = sample(3);
-        delta = sample(4);
-        Frl = sample(5);
-        Frr = sample(6);
-    
-        Fxf = 0;
-        Fyf = 2 * Ca * (delta - ((y_dot+lf*yaw_dot)/ x_dot));
-        Fyr = 2 * Ca * (      - ((y_dot-lr*yaw_dot)/ x_dot));
-    
-        del_Fxf = 0;
-        del_Fxr = Frr - Frl;
-    
-        x_ddot = ((Fxf * cos(delta) - Fyf * sin(delta)) + Frl+Frr) * 1/m + yaw_dot*y_dot -0;
-        y_ddot = ((Fxf * sin(delta) + Fyf * cos(delta)) + Fyr) * 1/m - yaw_dot*x_dot;
-        psi_ddot = ((lf * (Fxf * sin(delta) + Fyf * cos(delta)) - lr * Fyr) + w * (del_Fxf + del_Fxr)) / Iz;
-    
-        f = [x_ddot; y_ddot; psi_ddot];
-    end
-    %% dFdX; analytic gradient
-    function dfdx = analy_dFdX(sample)
-        Ca = 756.349/(0.6*pi/180);
-% Ca = 2802.731/(1.2*pi/180);
-        m = 1644.802;
-        Iz = 2488.893;
-        lf = 1.240;
-        lr = 1.510;
-        w = 0.8;
-        
-        x_dot = sample(1);
-        y_dot = sample(2) ;   
-        yaw_dot = sample(3);
-        delta = sample(4);        
-        % Frl = sample(:,4);
-        % Frr = sample(:,5);
-        
-        dfdx_op = [
-            [                                               -(2*Ca*sin(delta)*(y_dot + lf*yaw_dot))/(m*x_dot^2),             yaw_dot + (2*Ca*sin(delta))/(m*x_dot),                   y_dot + (2*Ca*lf*sin(delta))/(m*x_dot)]
-            [((2*Ca*(y_dot - lr*yaw_dot))/x_dot^2 + (2*Ca*cos(delta)*(y_dot + lf*yaw_dot))/x_dot^2)/m - yaw_dot,       -((2*Ca)/x_dot + (2*Ca*cos(delta))/x_dot)/m, ((2*Ca*lr)/x_dot - (2*Ca*lf*cos(delta))/x_dot)/m - x_dot]
-            [  -((2*Ca*lr*(y_dot - lr*yaw_dot))/x_dot^2 - (2*Ca*lf*cos(delta)*(y_dot + lf*yaw_dot))/x_dot^2)/Iz, ((2*Ca*lr)/x_dot - (2*Ca*lf*cos(delta))/x_dot)/Iz,   -((2*Ca*cos(delta)*lf^2)/x_dot + (2*Ca*lr^2)/x_dot)/Iz]
-        ];
-        
-        dfdu_op = [ 
-            [      -(2*Ca*sin(delta) + 2*Ca*cos(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/m,   1/m,  1/m]
-            [       (2*Ca*cos(delta) - 2*Ca*sin(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/m,     0,    0]
-            [(2*Ca*lf*cos(delta) - 2*Ca*lf*sin(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/Iz, -w/Iz, w/Iz]
-        ];
-        
-        dfdx = [dfdx_op dfdu_op];
-    end
-    
     %% function to calculate gradient
     function [y, g] = model(net, x, i)
        y = forward(net, x);
        y = y(i);
        g = dlgradient(y, x);
-    end
-    
-    %% predicitive matrices; for non-augmented system
-    function [Phi, F, gamma] = predmat(h, Np, Nc, Ts)
-    % X = F * x_current + Phi * controlSequence + gamma * Dx
-    %   Dx means linearization constants
-    %
-    % these matrices are not for augmented system!!!
-        A = h(:,1:3);
-        B = h(:,4:6);
-        C = eye(3);
-        
-        [stateSize, inputSize] = size(C);
-        predStateSize = stateSize * Np;
-        predInputSize = inputSize * Nc;
-    
-        A = A*Ts+eye(stateSize);
-        B = B*Ts;
-    
-        F = ones(predStateSize, stateSize);
-        Phi = zeros(predStateSize, predInputSize);
-        gamma = zeros(predStateSize, stateSize);
-    
-        pre_gamma = zeros(3,3);
-        for k = 1:1:Np
-            F((k-1)*stateSize+1:k*stateSize, ...
-                1:stateSize) = C * A^k;
-            gamma((k-1)*stateSize+1:k*stateSize, ...
-                1:stateSize) = A^(k-1) + pre_gamma;
-            pre_gamma = gamma((k-1)*stateSize+1:k*stateSize, 1:stateSize);
-            for j = 1:1:Nc
-                tmp =  C * A^(k-1) * B;
-                Phi((k+j-2)*stateSize+1:(k+j-1)*stateSize, ...
-                    (j-1)*inputSize+1:j*inputSize) = tmp;
-            end
-        end
-        
-        Phi = Phi(1:predStateSize,1:predInputSize);
-    end
+    end    
 end
+   

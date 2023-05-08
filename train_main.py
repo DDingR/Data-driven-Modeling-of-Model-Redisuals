@@ -11,17 +11,17 @@ from time import time, localtime, strftime
 from utils.others import *
 from utils.reporter import *
 
-raw_csv_dir = "0503_0649PM_withFy"
+raw_csv_dir = "0507_0746PM"
 
 # START ========================================
 # CONSTANTS ====================================
 EPISODE = int(1e5)
-EPOCH = int(1e2)
+EPOCH = int(50)
 BATCH_SIZE = 256
 VALIDATION_SIZE = 16
 SAVE_START = int(1)
-SAVE_PER_EPISODE = int(1e2)
-PLOT_PER_EPISODE = int(1)
+SAVE_PER_EPISODE = int(1e3)
+PLOT_PER_EPISODE = int(10)
 PLOT_FROM = 1e1
 TEST_TRAIN_DATA_RATE = 0.1
 # END ==========================================
@@ -57,6 +57,11 @@ def F(sample):
     ddots = ddots.T
     return ddots 
 
+def my_loss(input, target):
+    device = "cuda"
+    weight = torch.tensor([1.6927, 1., 36.7849], device=device)
+    return torch.mean(weight * (input-target)**2)
+
 def main():  
     # reporter config
     # cur_dir = os.getcwd()
@@ -74,12 +79,15 @@ def main():
 
     test_dataset = dataset[0:int(sample_num*TEST_TRAIN_DATA_RATE), 2:]
     train_dataset = dataset[int(sample_num*TEST_TRAIN_DATA_RATE):, 2:]
+    [_, var_num] = train_dataset.shape
+    var_num = var_num - 3
 
     # Trainer Setting
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = NN().to(device)
-    reporter.info(summary(model, (1,8)))
-    loss_fn = nn.MSELoss()
+    model = NN(var_num).to(device)
+    reporter.info(summary(model, (1,var_num)))
+    # loss_fn = nn.MSELoss()
+    loss_fn = my_loss
     reporter.info(f"Device({device}) is working for train")
 
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
@@ -89,7 +97,11 @@ def main():
     onnx_path = "./savemodel/"  + cur_time + "/"
     fig_path = "./fig/" + cur_time + "loss.png"
 
-    os.mkdir(onnx_path)
+    try:
+        os.mkdir(onnx_path)
+    except:
+        os.rmdir(onnx_path)
+        os.mkdir(onnx_path)
 
     try: 
         reporter.info(f"Train Started")
@@ -106,6 +118,8 @@ def main():
                 X_list = np2tensor(input_data, device)    
                 target = np2tensor(target, device)
 
+                # X_list = torch.nn.functional.normalize(X_list, dim=2)
+
                 pred = model(X_list)
                 # loss = torch.sqrt(loss_fn(pred, target)).item()
                 loss = loss_fn(pred,target).item()
@@ -114,10 +128,10 @@ def main():
                 boardWriter.add_scalar('Loss/test', loss, episode)
 
                 if episode == 0: # save non-trained network 
-                    saveONNX(model, reporter, device, episode, onnx_path)
+                    saveONNX(model, var_num,reporter, device, episode, onnx_path)
                     reporter.info(f"===== Saved non-trained network")
                 elif (loss == min(loss_list) and episode > SAVE_START) or (episode % SAVE_PER_EPISODE == 0) :
-                    saveONNX(model, reporter, device, episode, onnx_path)
+                    saveONNX(model,var_num, reporter, device, episode, onnx_path)
 
             # TRAIN REPORT
             if episode % PLOT_PER_EPISODE == 0:
@@ -129,18 +143,20 @@ def main():
                 # reporter.info(f"LOSS FUNCTION PLOTTED at {fig_path}")
 
             # EPOCH TRAIN
+            random_pick = np.random.choice(len(train_dataset), BATCH_SIZE)
+            sample = train_dataset[random_pick,:]
+            target = sample[:,0:3]
+            input_data = sample[:,3:]
+
+            analystic_target = F(input_data)
+            target = target-analystic_target
+
+            X_list = np2tensor(input_data, device)    
+            target = np2tensor(target, device)
+
+            # X_list = torch.nn.functional.normalize(X_list, dim=2)
+
             for _ in range(EPOCH):
-                random_pick = np.random.choice(len(train_dataset), BATCH_SIZE)
-                sample = train_dataset[random_pick,:]
-                target = sample[:,0:3]
-                input_data = sample[:,3:]
-
-                analystic_target = F(input_data)
-                target = target-analystic_target
-
-                X_list = np2tensor(input_data, device)    
-                target = np2tensor(target, device)
-
                 pred = model(X_list)
                 # loss = torch.sqrt(loss_fn(pred, target))
                 loss = loss_fn(pred,target)
@@ -151,7 +167,7 @@ def main():
 
     finally:
         reporter.info(f"train finished. \nfinal loss: {loss}")
-        saveONNX(model, device, "FINAL" + str(EPISODE), onnx_path)
+        saveONNX(model,var_num,reporter, device, "FINAL" + str(EPISODE), onnx_path)
 
 if __name__ == '__main__':
     main()

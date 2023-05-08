@@ -1,0 +1,13 @@
+"2023-05-07 16:46:11,162 [INFO] Reporter Initialized!
+"2023-05-07 16:46:11,163 [INFO] Reporter LEVEL: info
+"2023-05-07 16:46:11,163 [INFO] Initializing all necessary class instances
+"2023-05-07 16:46:11,182 [INFO] Creating and Configuring MAPort...
+"2023-05-07 16:46:14,643 [INFO] Adding Start and StopTrigger...
+"2023-05-07 16:46:14,643 [INFO] Starting simulation...
+"2023-05-07 16:46:14,662 [INFO] capturing... (variable) capture_start: 1.0
+"2023-05-07 16:46:15,418 [INFO] capturing... (variable) capture_start: 51.0
+"2023-05-07 16:46:15,932 [INFO] capturing... (variable) capture_start: 101.0
+"2023-05-07 16:46:16,459 [INFO] capturing... (variable) capture_start: 151.0
+"2023-05-07 16:46:16,956 [INFO] capturing... (variable) capture_start: 201.0
+"2023-05-07 16:47:36,436 [INFO] data post processing...
+"2023-05-07 16:47:36,473 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0446PM/FreeSpace/1.csv

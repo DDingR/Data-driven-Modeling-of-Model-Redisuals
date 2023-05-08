@@ -1,0 +1,97 @@
+"2023-05-07 19:45:22,736 [INFO] Reporter Initialized!
+"2023-05-07 19:45:22,736 [INFO] Reporter LEVEL: info
+"2023-05-07 19:45:24,738 [INFO] Initializing all necessary class instances
+"2023-05-07 19:45:24,763 [INFO] Creating and Configuring MAPort...
+"2023-05-07 19:45:28,239 [INFO] Adding Start and StopTrigger...
+"2023-05-07 19:45:28,239 [INFO] Starting simulation...
+"2023-05-07 19:45:28,260 [INFO] capturing... (variable) capture_start: 1.0
+"2023-05-07 19:45:29,019 [INFO] capturing... (variable) capture_start: 51.0
+"2023-05-07 19:45:29,523 [INFO] capturing... (variable) capture_start: 101.0
+"2023-05-07 19:45:30,050 [INFO] capturing... (variable) capture_start: 151.0
+"2023-05-07 19:45:30,544 [INFO] capturing... (variable) capture_start: 201.0
+"2023-05-07 19:45:31,042 [INFO] capturing... (variable) capture_start: 251.0
+"2023-05-07 19:45:31,546 [INFO] capturing... (variable) capture_start: 301.0
+"2023-05-07 19:45:32,048 [INFO] capturing... (variable) capture_start: 351.0
+"2023-05-07 19:45:32,548 [INFO] capturing... (variable) capture_start: 401.0
+"2023-05-07 19:45:33,048 [INFO] capturing... (variable) capture_start: 451.0
+"2023-05-07 19:45:33,550 [INFO] capturing... (variable) capture_start: 501.0
+"2023-05-07 19:45:34,043 [INFO] Terminating simulation...
+"2023-05-07 19:45:34,044 [INFO] data post processing...
+"2023-05-07 19:45:34,078 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/FreeSpace/1.csv
+"2023-05-07 19:45:34,110 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/FreeSpace/2.csv
+"2023-05-07 19:45:34,139 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/FreeSpace/3.csv
+"2023-05-07 19:45:34,169 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/FreeSpace/4.csv
+"2023-05-07 19:45:34,199 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/FreeSpace/5.csv
+"2023-05-07 19:45:34,229 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/FreeSpace/6.csv
+"2023-05-07 19:45:34,261 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/FreeSpace/7.csv
+"2023-05-07 19:45:34,291 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/FreeSpace/8.csv
+"2023-05-07 19:45:34,321 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/FreeSpace/9.csv
+"2023-05-07 19:45:34,382 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/FreeSpace/10.csv
+"2023-05-07 19:45:34,424 [INFO] Adding Start and StopTrigger...
+"2023-05-07 19:45:34,424 [INFO] Starting simulation...
+"2023-05-07 19:45:34,464 [INFO] capturing... (variable) capture_start: 1.0
+"2023-05-07 19:45:35,281 [INFO] capturing... (variable) capture_start: 51.0
+"2023-05-07 19:45:35,790 [INFO] capturing... (variable) capture_start: 101.0
+"2023-05-07 19:45:36,308 [INFO] capturing... (variable) capture_start: 151.0
+"2023-05-07 19:45:36,814 [INFO] capturing... (variable) capture_start: 201.0
+"2023-05-07 19:45:37,314 [INFO] capturing... (variable) capture_start: 251.0
+"2023-05-07 19:45:37,814 [INFO] capturing... (variable) capture_start: 301.0
+"2023-05-07 19:45:38,314 [INFO] capturing... (variable) capture_start: 351.0
+"2023-05-07 19:45:38,817 [INFO] capturing... (variable) capture_start: 401.0
+"2023-05-07 19:45:39,311 [INFO] capturing... (variable) capture_start: 451.0
+"2023-05-07 19:45:39,808 [INFO] capturing... (variable) capture_start: 501.0
+"2023-05-07 19:45:40,311 [INFO] capturing... (variable) capture_start: 551.0
+"2023-05-07 19:45:40,804 [INFO] Terminating simulation...
+"2023-05-07 19:45:40,804 [INFO] data post processing...
+"2023-05-07 19:45:40,842 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/demo1/1.csv
+"2023-05-07 19:45:40,877 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/demo1/2.csv
+"2023-05-07 19:45:40,911 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/demo1/3.csv
+"2023-05-07 19:45:40,944 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/demo1/4.csv
+"2023-05-07 19:45:40,976 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/demo1/5.csv
+"2023-05-07 19:45:41,008 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/demo1/6.csv
+"2023-05-07 19:45:41,041 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/demo1/7.csv
+"2023-05-07 19:45:41,073 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/demo1/8.csv
+"2023-05-07 19:45:41,108 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/demo1/9.csv
+"2023-05-07 19:45:41,141 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/demo1/10.csv
+"2023-05-07 19:45:41,206 [INFO] Saved at /home/mic/Git_Projects/ms/dynamics_uncertainty_learning/CM_data_collector/results/0507_0745PM/demo1/11.csv
+"2023-05-07 19:45:41,280 [INFO] Adding Start and StopTrigger...
+"2023-05-07 19:45:41,280 [INFO] Starting simulation...
+"2023-05-07 19:45:41,319 [INFO] capturing... (variable) capture_start: 1.0
+"2023-05-07 19:45:46,083 [INFO] Reporter Initialized!
+"2023-05-07 19:45:46,083 [INFO] Reporter LEVEL: info
+"2023-05-07 19:45:46,243 [INFO] Reporter Initialized!
+"2023-05-07 19:45:46,244 [INFO] Reporter LEVEL: info
+"2023-05-07 19:45:54,303 [INFO] Initializing all necessary class instances
+"2023-05-07 19:45:54,348 [INFO] Creating and Configuring MAPort...
+"2023-05-07 19:45:57,818 [INFO] Adding Start and StopTrigger...
+"2023-05-07 19:45:57,819 [INFO] Starting simulation...
+"2023-05-07 19:45:57,878 [INFO] capturing... (variable) capture_start: 1.0
+"2023-05-07 19:45:58,648 [INFO] capturing... (variable) capture_start: 51.0
+"2023-05-07 19:45:59,311 [INFO] capturing... (variable) capture_start: 101.0
+"2023-05-07 19:45:59,937 [INFO] capturing... (variable) capture_start: 151.0
+"2023-05-07 19:46:00,498 [INFO] capturing... (variable) capture_start: 201.0
+"2023-05-07 19:46:00,986 [INFO] capturing... (variable) capture_start: 251.0
+"2023-05-07 19:46:01,384 [INFO] Initializing all necessary class instances
+"2023-05-07 19:46:01,425 [INFO] Creating and Configuring MAPort...
+"2023-05-07 19:46:01,526 [INFO] capturing... (variable) capture_start: 301.0
+"2023-05-07 19:46:01,979 [INFO] capturing... (variable) capture_start: 351.0
+"2023-05-07 19:46:02,476 [INFO] capturing... (variable) capture_start: 401.0
+"2023-05-07 19:46:02,987 [INFO] capturing... (variable) capture_start: 451.0
+"2023-05-07 19:46:03,485 [INFO] capturing... (variable) capture_start: 501.0
+"2023-05-07 19:46:03,973 [INFO] Terminating simulation...
+"2023-05-07 19:46:03,973 [INFO] data post processing...
+"2023-05-07 19:46:04,893 [INFO] Adding Start and StopTrigger...
+"2023-05-07 19:46:04,894 [INFO] Starting simulation...
+"2023-05-07 19:46:04,955 [INFO] capturing... (variable) capture_start: 1.0
+"2023-05-07 19:46:05,716 [INFO] capturing... (variable) capture_start: 51.0
+"2023-05-07 19:46:06,345 [INFO] capturing... (variable) capture_start: 101.0
+"2023-05-07 19:46:06,963 [INFO] capturing... (variable) capture_start: 151.0
+"2023-05-07 19:46:07,488 [INFO] capturing... (variable) capture_start: 201.0
+"2023-05-07 19:46:07,984 [INFO] capturing... (variable) capture_start: 251.0
+"2023-05-07 19:46:08,492 [INFO] capturing... (variable) capture_start: 301.0
+"2023-05-07 19:46:08,995 [INFO] capturing... (variable) capture_start: 351.0
+"2023-05-07 19:46:09,488 [INFO] capturing... (variable) capture_start: 401.0
+"2023-05-07 19:46:09,993 [INFO] capturing... (variable) capture_start: 451.0
+"2023-05-07 19:46:10,501 [INFO] capturing... (variable) capture_start: 501.0
+"2023-05-07 19:46:10,983 [INFO] Terminating simulation...
+"2023-05-07 19:46:10,983 [INFO] data post processing...
