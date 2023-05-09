@@ -11,15 +11,11 @@ class NN(nn.Module):
         self.fc = nn.Sequential(
             nn.Linear(input_shape, 32),
             nn.ReLU(),
-            nn.Linear(32, 1024),
+            nn.Linear(32, 32),
             nn.ReLU(),
-            nn.Linear(1024, 1024),
-            nn.ReLU(),
-            nn.Linear(1024, 1024),
-            nn.ReLU(),            
-            nn.Linear(1024, 1024),
+            nn.Linear(32, 32),
             nn.ReLU(),                      
-            nn.Linear(1024, 1)
+            nn.Linear(32, 3)
         )
     def forward(self, x):
         x = torch.nn.functional.normalize(x, dim=-1)
