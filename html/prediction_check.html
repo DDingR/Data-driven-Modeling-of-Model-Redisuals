@@ -71,7 +71,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 </pre><pre class="codeinput">    close <span class="string">all</span>
     fprintf(<span class="string">"\n======== Prediction Test at %s ========\n"</span>, char(datetime))
 </pre><pre class="codeoutput">
-======== Prediction Test at 2023-05-09 15:53:17 ========
+======== Prediction Test at 2023-05-09 17:04:33 ========
 </pre><h2 id="3">constants</h2><pre class="codeinput">    <span class="keyword">if</span> nargin == 3
         FILE_NAME = <span class="string">"0501_0133PM"</span>;
 
@@ -321,6 +321,10 @@ layers will be saved to package 'x23000'.
                 grid <span class="string">on</span>
             <span class="keyword">end</span>
         <span class="keyword">end</span>
+                    lgd = legend(<span class="string">'proposed prediction'</span>, <span class="string">'without gradient prediction'</span>, <span class="string">'analytic prediction'</span>, <span class="string">'ground truth'</span>,<span class="keyword">...</span>
+                <span class="string">'fontsize'</span>,11,<span class="string">'fontname'</span>, <span class="string">'Times New Roman'</span>);
+            lgd.Layout.Tile = <span class="string">'north'</span>;
+            lgd.NumColumns = 3;
     <span class="keyword">end</span>
 </pre><pre class="codeoutput">traj_err =
   3&times;3 table
@@ -336,7 +340,7 @@ one_step_err =
     0.039286    0.039286     0.1208 
     0.074746    0.074746    0.22573 
     0.076048    0.076048    0.18788 
-</pre><img vspace="5" hspace="5" src="prediction_check_01.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_02.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_03.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_04.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_05.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_06.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_07.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_08.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_09.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_10.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_11.png" alt=""> <h2 id="12">function to calculate gradient</h2><pre class="codeinput">    <span class="keyword">function</span> [y, g] = model(net, x, i)
+</pre><img vspace="5" hspace="5" src="prediction_check_01.jpg" alt=""> <img vspace="5" hspace="5" src="prediction_check_02.jpg" alt=""> <img vspace="5" hspace="5" src="prediction_check_03.jpg" alt=""> <img vspace="5" hspace="5" src="prediction_check_04.jpg" alt=""> <img vspace="5" hspace="5" src="prediction_check_05.jpg" alt=""> <img vspace="5" hspace="5" src="prediction_check_06.jpg" alt=""> <img vspace="5" hspace="5" src="prediction_check_07.jpg" alt=""> <img vspace="5" hspace="5" src="prediction_check_08.jpg" alt=""> <img vspace="5" hspace="5" src="prediction_check_09.jpg" alt=""> <img vspace="5" hspace="5" src="prediction_check_10.jpg" alt=""> <img vspace="5" hspace="5" src="prediction_check_11.jpg" alt=""> <h2 id="12">function to calculate gradient</h2><pre class="codeinput">    <span class="keyword">function</span> [y, g] = model(net, x, i)
        y = forward(net, x);
        y = y(i);
        g = dlgradient(y, x);
@@ -608,6 +612,10 @@ TEST_NUM = 50;
                 grid on
             end
         end
+                    lgd = legend('proposed prediction', 'without gradient prediction', 'analytic prediction', 'ground truth',...
+                'fontsize',11,'fontname', 'Times New Roman');
+            lgd.Layout.Tile = 'north';
+            lgd.NumColumns = 3;
     end
     
 

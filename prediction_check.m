@@ -28,7 +28,7 @@ FILE_NAME = "0508_1258PM"; % testSet
 % 
 
 TEST_NUM = 50;
-        Ts = 0.01; Np = 100; Nc = Np;
+        Ts = 0.01; Np = 20; Nc = Np;
         
         PLOT_DATA = true;
 %         PLOT_DATA = false;
@@ -257,6 +257,12 @@ TEST_NUM = 50;
                 grid on
             end
         end
+                    lgd = legend('proposed prediction', 'without gradient prediction', 'analytic prediction', 'ground truth',...
+                'fontsize',11,'fontname', 'Times New Roman');
+            lgd.Layout.Tile = 'north';
+            lgd.NumColumns = 3;
+
+            exportgraphics(figure(11),'20_11.eps','ContentType','vector')
     end
     
 
