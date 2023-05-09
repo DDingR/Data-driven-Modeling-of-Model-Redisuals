@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>prediction_check</title><meta name="generator" content="MATLAB 9.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-05-08"><meta name="DC.source" content="prediction_check.m"><style type="text/css">
+      --><title>prediction_check</title><meta name="generator" content="MATLAB 9.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-05-09"><meta name="DC.source" content="prediction_check.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -71,7 +71,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 </pre><pre class="codeinput">    close <span class="string">all</span>
     fprintf(<span class="string">"\n======== Prediction Test at %s ========\n"</span>, char(datetime))
 </pre><pre class="codeoutput">
-======== Prediction Test at 2023-05-08 13:37:38 ========
+======== Prediction Test at 2023-05-09 15:47:23 ========
 </pre><h2 id="3">constants</h2><pre class="codeinput">    <span class="keyword">if</span> nargin == 3
         FILE_NAME = <span class="string">"0501_0133PM"</span>;
 
@@ -85,7 +85,9 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <span class="comment">%         NN_NAME = "0507_0737PM/FINAL100000"; %0507_0542PM</span>
 <span class="comment">%         NN_NAME = "0507_0752PM/FINAL100000"; % 0507_0746PM</span>
         NN_NAME = <span class="string">"0508_1246PM/23000"</span>; <span class="comment">% 0507_0746PM</span>
-
+<span class="comment">%         NN_NAME = "0508_1246PM/5000"; % 0507_0746PM</span>
+<span class="comment">%         NN_NAME = "0508_0339PM/21000"; % 0507_0746PM</span>
+<span class="comment">%         NN_NAME = "0508_0508PM/36000"; % 0507_0746PM</span>
 
 <span class="comment">%         FILE_NAME = "0503_0649PM_withFy";</span>
 <span class="comment">%         FILE_NAME = "0507_0516PM";</span>
@@ -93,7 +95,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <span class="comment">% FILE_NAME = "0507_0621PM";</span>
 <span class="comment">% FILE_NAME = "0507_0746PM"; % FreeSpace demo1 demo1_1</span>
 FILE_NAME = <span class="string">"0508_1258PM"</span>; <span class="comment">% testSet</span>
-
+<span class="comment">%</span>
 
 TEST_NUM = 50;
         Ts = 0.01; Np = 20; Nc = Np;
@@ -118,6 +120,11 @@ TEST_NUM = 50;
     );
     <span class="comment">% analyzeNetwork(nn)</span>
 </pre><pre class="codeoutput">Loading Neural Network NN_NAME: 0508_1246PM/23000
+Warning: Attribute(s) [noop_with_empty_axes] in layer 'x_ReduceSum' with
+operator type 'ReduceSum' are unknown. It is possible that the imported model
+will not output the same predictions as the source model. 
+Warning: Unable to use '23000' as a package name for custom layers. Custom
+layers will be saved to package 'x23000'. 
 </pre><h2 id="8">data load</h2><pre class="codeinput">    fprintf(<span class="string">"Loading DataSet FILE_NAME: %s\n"</span>, FILE_NAME)
     shuffled_file_name = <span class="string">"processed_csv_data/shuffled_"</span> + FILE_NAME +<span class="string">".csv"</span>;
     ori_file_name = <span class="string">"processed_csv_data/"</span> +  FILE_NAME + <span class="string">".csv"</span>;
@@ -257,46 +264,62 @@ TEST_NUM = 50;
         <span class="keyword">if</span> TEST_NUM &lt;= 5
             PLOT_NUM = TEST_NUM;
         <span class="keyword">else</span>
-            PLOT_NUM = 5;
+            PLOT_NUM = 10;
         <span class="keyword">end</span>
+            figure(PLOT_NUM+1)
+            tiledlayout(3,1);
 
         <span class="keyword">for</span> s = 1:1:PLOT_NUM
             figure(s)
             tiledlayout(3,1);
 
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+1), <span class="string">'r--o'</span>);
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+1), <span class="string">'r'</span>);
             hold <span class="string">on</span>
             plot(x_axis, prediction_noGrad_list(:, (s-1)*3+1), <span class="string">'k'</span>);
-            plot(x_axis, prediction_analytic_list(:, (s-1)*3+1), <span class="string">'b*'</span>);
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+1), <span class="string">'b'</span>);
             plot(x_axis, obs_state_list(:, (s-1)*3+1), <span class="string">'g'</span>);
-            xlabel(<span class="string">"Time Step [0.01ms]"</span>)
-            ylabel(<span class="string">"Vx [m/s]"</span>)
+            xlabel(<span class="string">"Time Step [0.01ms]"</span>,<span class="string">'fontsize'</span>,10,<span class="string">'fontname'</span>, <span class="string">'Times New Roman'</span>)
+            ylabel(<span class="string">"Vx [m/s]"</span>,<span class="string">'fontsize'</span>,10,<span class="string">'fontname'</span>, <span class="string">'Times New Roman'</span>)
             grid <span class="string">on</span>
 
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+2), <span class="string">'r--o'</span>);
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+2), <span class="string">'r'</span>);
             hold <span class="string">on</span>
             plot(x_axis, prediction_noGrad_list(:, (s-1)*3+2), <span class="string">'k'</span>);
-            plot(x_axis, prediction_analytic_list(:, (s-1)*3+2), <span class="string">'b*'</span>);
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+2), <span class="string">'b'</span>);
             plot(x_axis, obs_state_list(:, (s-1)*3+2), <span class="string">'g'</span>);
-            xlabel(<span class="string">"Time Step [0.01ms]"</span>)
-            ylabel(<span class="string">"Vy [m/s]"</span>)
+            xlabel(<span class="string">"Time Step [0.01ms]"</span>,<span class="string">'fontsize'</span>,10,<span class="string">'fontname'</span>, <span class="string">'Times New Roman'</span>)
+            ylabel(<span class="string">"Vy [m/s]"</span>,<span class="string">'fontsize'</span>,10,<span class="string">'fontname'</span>, <span class="string">'Times New Roman'</span>)
             grid <span class="string">on</span>
 
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+3), <span class="string">'r--o'</span>);
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+3), <span class="string">'r'</span>);
             hold <span class="string">on</span>
             plot(x_axis, prediction_noGrad_list(:, (s-1)*3+3), <span class="string">'k'</span>);
-            plot(x_axis, prediction_analytic_list(:, (s-1)*3+3), <span class="string">'b*'</span>);
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+3), <span class="string">'b'</span>);
             plot(x_axis, obs_state_list(:, (s-1)*3+3), <span class="string">'g'</span>);
-            xlabel(<span class="string">"Time Step [0.01ms]"</span>)
-            ylabel(<span class="string">"YawRate [rad/s]"</span>)
+            xlabel(<span class="string">"Time Step [0.01ms]"</span>,<span class="string">'fontsize'</span>,10,<span class="string">'fontname'</span>, <span class="string">'Times New Roman'</span>)
+            ylabel(<span class="string">"YawRate [rad/s]"</span>,<span class="string">'fontsize'</span>,10,<span class="string">'fontname'</span>, <span class="string">'Times New Roman'</span>)
             grid <span class="string">on</span>
 
-            lgd = legend(<span class="string">'proposed prediction'</span>, <span class="string">'without gradient prediction'</span>, <span class="string">'analytic prediction'</span>, <span class="string">'ground truth'</span>);
-            lgd.Layout.Tile = <span class="string">'south'</span>;
+            lgd = legend(<span class="string">'proposed prediction'</span>, <span class="string">'without gradient prediction'</span>, <span class="string">'analytic prediction'</span>, <span class="string">'ground truth'</span>,<span class="keyword">...</span>
+                <span class="string">'fontsize'</span>,11,<span class="string">'fontname'</span>, <span class="string">'Times New Roman'</span>);
+            lgd.Layout.Tile = <span class="string">'north'</span>;
             lgd.NumColumns = 3;
+
+            figure(PLOT_NUM+1)
+            <span class="keyword">if</span> find([1 5 9]==s)
+                nexttile
+                plot(x_axis, prediction_Grad_list(:, (s-1)*3+2), <span class="string">'r'</span>);
+                hold <span class="string">on</span>
+                plot(x_axis, prediction_noGrad_list(:, (s-1)*3+2), <span class="string">'k'</span>);
+                plot(x_axis, prediction_analytic_list(:, (s-1)*3+2), <span class="string">'b'</span>);
+                plot(x_axis, obs_state_list(:, (s-1)*3+2), <span class="string">'g'</span>);
+                xlabel(<span class="string">"Time Step [0.01ms]"</span>,<span class="string">'fontsize'</span>,10,<span class="string">'fontname'</span>, <span class="string">'Times New Roman'</span>)
+                ylabel(<span class="string">"Vy [m/s]"</span>,<span class="string">'fontsize'</span>,10,<span class="string">'fontname'</span>, <span class="string">'Times New Roman'</span>)
+                grid <span class="string">on</span>
+            <span class="keyword">end</span>
         <span class="keyword">end</span>
     <span class="keyword">end</span>
 </pre><pre class="codeoutput">traj_err =
@@ -313,7 +336,7 @@ one_step_err =
     0.038135    0.038135    0.12137 
     0.076047    0.076047    0.22635 
     0.099176    0.099176    0.18945 
-</pre><img vspace="5" hspace="5" src="prediction_check_01.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_02.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_03.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_04.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_05.png" alt=""> <h2 id="12">function to calculate gradient</h2><pre class="codeinput">    <span class="keyword">function</span> [y, g] = model(net, x, i)
+</pre><img vspace="5" hspace="5" src="prediction_check_01.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_02.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_03.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_04.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_05.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_06.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_07.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_08.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_09.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_10.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_11.png" alt=""> <h2 id="12">function to calculate gradient</h2><pre class="codeinput">    <span class="keyword">function</span> [y, g] = model(net, x, i)
        y = forward(net, x);
        y = y(i);
        g = dlgradient(y, x);
@@ -343,7 +366,9 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
 %         NN_NAME = "0507_0737PM/FINAL100000"; %0507_0542PM
 %         NN_NAME = "0507_0752PM/FINAL100000"; % 0507_0746PM
         NN_NAME = "0508_1246PM/23000"; % 0507_0746PM
-
+%         NN_NAME = "0508_1246PM/5000"; % 0507_0746PM
+%         NN_NAME = "0508_0339PM/21000"; % 0507_0746PM
+%         NN_NAME = "0508_0508PM/36000"; % 0507_0746PM
 
 %         FILE_NAME = "0503_0649PM_withFy";
 %         FILE_NAME = "0507_0516PM";
@@ -351,7 +376,7 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
 % FILE_NAME = "0507_0621PM";
 % FILE_NAME = "0507_0746PM"; % FreeSpace demo1 demo1_1
 FILE_NAME = "0508_1258PM"; % testSet
-
+% 
 
 TEST_NUM = 50;
         Ts = 0.01; Np = 20; Nc = Np;
@@ -526,49 +551,66 @@ TEST_NUM = 50;
         if TEST_NUM <= 5
             PLOT_NUM = TEST_NUM;
         else
-            PLOT_NUM = 5;
+            PLOT_NUM = 10;
         end
+            figure(PLOT_NUM+1)
+            tiledlayout(3,1);
 
         for s = 1:1:PLOT_NUM
             figure(s)
             tiledlayout(3,1);
     
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+1), 'rREPLACE_WITH_DASH_DASHo');
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+1), 'r');
             hold on 
             plot(x_axis, prediction_noGrad_list(:, (s-1)*3+1), 'k');        
-            plot(x_axis, prediction_analytic_list(:, (s-1)*3+1), 'b*');
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+1), 'b');
             plot(x_axis, obs_state_list(:, (s-1)*3+1), 'g');
-            xlabel("Time Step [0.01ms]")
-            ylabel("Vx [m/s]") 
+            xlabel("Time Step [0.01ms]",'fontsize',10,'fontname', 'Times New Roman')
+            ylabel("Vx [m/s]",'fontsize',10,'fontname', 'Times New Roman') 
             grid on
         
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+2), 'rREPLACE_WITH_DASH_DASHo');
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+2), 'r');
             hold on 
             plot(x_axis, prediction_noGrad_list(:, (s-1)*3+2), 'k');   
-            plot(x_axis, prediction_analytic_list(:, (s-1)*3+2), 'b*');   
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+2), 'b');   
             plot(x_axis, obs_state_list(:, (s-1)*3+2), 'g');     
-            xlabel("Time Step [0.01ms]")
-            ylabel("Vy [m/s]") 
+            xlabel("Time Step [0.01ms]",'fontsize',10,'fontname', 'Times New Roman')
+            ylabel("Vy [m/s]",'fontsize',10,'fontname', 'Times New Roman')
             grid on
         
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+3), 'rREPLACE_WITH_DASH_DASHo');
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+3), 'r');
             hold on
             plot(x_axis, prediction_noGrad_list(:, (s-1)*3+3), 'k');         
-            plot(x_axis, prediction_analytic_list(:, (s-1)*3+3), 'b*'); 
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+3), 'b'); 
             plot(x_axis, obs_state_list(:, (s-1)*3+3), 'g');
-            xlabel("Time Step [0.01ms]")
-            ylabel("YawRate [rad/s]") 
+            xlabel("Time Step [0.01ms]",'fontsize',10,'fontname', 'Times New Roman')
+            ylabel("YawRate [rad/s]",'fontsize',10,'fontname', 'Times New Roman') 
             grid on
     
-            lgd = legend('proposed prediction', 'without gradient prediction', 'analytic prediction', 'ground truth');
-            lgd.Layout.Tile = 'south';
+            lgd = legend('proposed prediction', 'without gradient prediction', 'analytic prediction', 'ground truth',...
+                'fontsize',11,'fontname', 'Times New Roman');
+            lgd.Layout.Tile = 'north';
             lgd.NumColumns = 3;
+
+            figure(PLOT_NUM+1)
+            if find([1 5 9]==s)
+                nexttile
+                plot(x_axis, prediction_Grad_list(:, (s-1)*3+2), 'r');
+                hold on 
+                plot(x_axis, prediction_noGrad_list(:, (s-1)*3+2), 'k');   
+                plot(x_axis, prediction_analytic_list(:, (s-1)*3+2), 'b');   
+                plot(x_axis, obs_state_list(:, (s-1)*3+2), 'g');     
+                xlabel("Time Step [0.01ms]",'fontsize',10,'fontname', 'Times New Roman')
+                ylabel("Vy [m/s]",'fontsize',10,'fontname', 'Times New Roman')
+                grid on
+            end
         end
     end
     
+
 
     %% function to calculate gradient
     function [y, g] = model(net, x, i)

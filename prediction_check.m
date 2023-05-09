@@ -25,10 +25,10 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
 % FILE_NAME = "0507_0621PM";
 % FILE_NAME = "0507_0746PM"; % FreeSpace demo1 demo1_1
 FILE_NAME = "0508_1258PM"; % testSet
+% 
 
-
-TEST_NUM = 10;
-        Ts = 0.01; Np = 20; Nc = Np;
+TEST_NUM = 50;
+        Ts = 0.01; Np = 100; Nc = Np;
         
         PLOT_DATA = true;
 %         PLOT_DATA = false;
@@ -36,7 +36,7 @@ TEST_NUM = 10;
 
     TEST_TRAIN_DATA_RATE = 0.1; Nc = Np;
     %% overwrite constant!
-    seed = 205;
+    seed = 20135;
 
     %% simulation constants
     state_num = 3;
@@ -200,49 +200,66 @@ TEST_NUM = 10;
         if TEST_NUM <= 5
             PLOT_NUM = TEST_NUM;
         else
-            PLOT_NUM = 5;
+            PLOT_NUM = 10;
         end
+            figure(PLOT_NUM+1)
+            tiledlayout(3,1);
 
         for s = 1:1:PLOT_NUM
             figure(s)
             tiledlayout(3,1);
     
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+1), 'r--o');
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+1), 'r');
             hold on 
             plot(x_axis, prediction_noGrad_list(:, (s-1)*3+1), 'k');        
-            plot(x_axis, prediction_analytic_list(:, (s-1)*3+1), 'b*');
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+1), 'b');
             plot(x_axis, obs_state_list(:, (s-1)*3+1), 'g');
-            xlabel("Time Step [0.01ms]")
-            ylabel("Vx [m/s]") 
+            xlabel("Time Step [0.01ms]",'fontsize',10,'fontname', 'Times New Roman')
+            ylabel("Vx [m/s]",'fontsize',10,'fontname', 'Times New Roman') 
             grid on
         
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+2), 'r--o');
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+2), 'r');
             hold on 
             plot(x_axis, prediction_noGrad_list(:, (s-1)*3+2), 'k');   
-            plot(x_axis, prediction_analytic_list(:, (s-1)*3+2), 'b*');   
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+2), 'b');   
             plot(x_axis, obs_state_list(:, (s-1)*3+2), 'g');     
-            xlabel("Time Step [0.01ms]")
-            ylabel("Vy [m/s]") 
+            xlabel("Time Step [0.01ms]",'fontsize',10,'fontname', 'Times New Roman')
+            ylabel("Vy [m/s]",'fontsize',10,'fontname', 'Times New Roman')
             grid on
         
             nexttile
-            plot(x_axis, prediction_Grad_list(:, (s-1)*3+3), 'r--o');
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+3), 'r');
             hold on
             plot(x_axis, prediction_noGrad_list(:, (s-1)*3+3), 'k');         
-            plot(x_axis, prediction_analytic_list(:, (s-1)*3+3), 'b*'); 
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+3), 'b'); 
             plot(x_axis, obs_state_list(:, (s-1)*3+3), 'g');
-            xlabel("Time Step [0.01ms]")
-            ylabel("YawRate [rad/s]") 
+            xlabel("Time Step [0.01ms]",'fontsize',10,'fontname', 'Times New Roman')
+            ylabel("YawRate [rad/s]",'fontsize',10,'fontname', 'Times New Roman') 
             grid on
     
-            lgd = legend('proposed prediction', 'without gradient prediction', 'analytic prediction', 'ground truth');
-            lgd.Layout.Tile = 'south';
+            lgd = legend('proposed prediction', 'without gradient prediction', 'analytic prediction', 'ground truth',...
+                'fontsize',11,'fontname', 'Times New Roman');
+            lgd.Layout.Tile = 'north';
             lgd.NumColumns = 3;
+
+            figure(PLOT_NUM+1)
+            if find([1 5 9]==s)
+                nexttile
+                plot(x_axis, prediction_Grad_list(:, (s-1)*3+2), 'r');
+                hold on 
+                plot(x_axis, prediction_noGrad_list(:, (s-1)*3+2), 'k');   
+                plot(x_axis, prediction_analytic_list(:, (s-1)*3+2), 'b');   
+                plot(x_axis, obs_state_list(:, (s-1)*3+2), 'g');     
+                xlabel("Time Step [0.01ms]",'fontsize',10,'fontname', 'Times New Roman')
+                ylabel("Vy [m/s]",'fontsize',10,'fontname', 'Times New Roman')
+                grid on
+            end
         end
     end
     
+
 
     %% function to calculate gradient
     function [y, g] = model(net, x, i)
