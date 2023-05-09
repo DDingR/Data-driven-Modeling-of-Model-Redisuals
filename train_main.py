@@ -17,8 +17,8 @@ raw_csv_dir = "0507_0746PM"
 # CONSTANTS ====================================
 EPISODE = int(1e5)
 EPOCH = int(50)
-BATCH_SIZE = 256
-VALIDATION_SIZE = 16
+BATCH_SIZE = 1024
+VALIDATION_SIZE = 32
 SAVE_START = int(1)
 SAVE_PER_EPISODE = int(1e3)
 PLOT_PER_EPISODE = int(10)
@@ -57,10 +57,51 @@ def F(sample):
     ddots = ddots.T
     return ddots 
 
-def my_loss(input, target):
+
+# def dFdX(sample):
+#     x_dot = sample[:,0]
+#     y_dot = sample[:,1]    
+#     yaw_dot = sample[:,2]
+#     delta = sample[:,3]
+#     # Frl = sample[:,4]
+#     # Frr = sample[:,5]
+    
+#     dfdx_op = np.array([
+#         [                                               -(2*Ca*np.sin(delta)*(y_dot + lf*yaw_dot))/(m*x_dot**2),             yaw_dot + (2*Ca*np.sin(delta))/(m*x_dot),                   y_dot + (2*Ca*lf*np.sin(delta))/(m*x_dot)],
+#         [((2*Ca*(y_dot - lr*yaw_dot))/x_dot**2 + (2*Ca*np.cos(delta)*(y_dot + lf*yaw_dot))/x_dot**2)/m - yaw_dot,       -((2*Ca)/x_dot + (2*Ca*np.cos(delta))/x_dot)/m, ((2*Ca*lr)/x_dot - (2*Ca*lf*np.cos(delta))/x_dot)/m - x_dot],
+#         [  -((2*Ca*lr*(y_dot - lr*yaw_dot))/x_dot**2 - (2*Ca*lf*np.cos(delta)*(y_dot + lf*yaw_dot))/x_dot**2)/Iz, ((2*Ca*lr)/x_dot - (2*Ca*lf*np.cos(delta))/x_dot)/Iz,   -((2*Ca*np.cos(delta)*lf**2)/x_dot + (2*Ca*lr**2)/x_dot)/Iz]
+#     ])
+    
+#     dfdu_op = np.array([ 
+#         [      -(2*Ca*np.sin(delta) + 2*Ca*np.cos(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/m,   1/m *(x_dot/x_dot),  1/m *(x_dot/x_dot)],
+#         [       (2*Ca*np.cos(delta) - 2*Ca*np.sin(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/m,     0 *(x_dot/x_dot),    0 *(x_dot/x_dot)],
+#         [(2*Ca*lf*np.cos(delta) - 2*Ca*lf*np.sin(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/Iz, -w/Iz *(x_dot/x_dot), w/Iz *(x_dot/x_dot)]
+#     ])
+    
+#     dfdx = np.concatenate((dfdx_op, dfdu_op), axis=1) # state_num * (state_num + control_num)
+    
+#     dfdx = np.swapaxes(dfdx, 0, 2)
+#     dfdx = np.swapaxes(dfdx, 1, 2)    
+#     return dfdx
+
+
+# def diff_loss(input_data, target, nn,X_list,pred):
+#     f0 = F(input_data)
+#     dfdx0 = dFdX(input_data)
+
+#     trg = target - f0 + dfdx0 * input_data
+
+#     dgdx0 = torch.autograd.grad(pred.sum(), X_list, create_graph=True)[0]
+
+#     return trg - dgdx0 () 
+
+#     pass
+
+def my_loss(pred, target):
     device = "cuda"
-    weight = torch.tensor([1.6927, 1., 36.7849], device=device)
-    return torch.mean(weight * (input-target)**2)
+    # weight = torch.tensor([1.6927, 1., 36.7849], device=device)
+    weight = torch.tensor([1., 1., 1.], device=device)    
+    return torch.mean(weight * (pred-target)**2)
 
 def main():  
     # reporter config
@@ -72,7 +113,7 @@ def main():
     boardWriter = SummaryWriter(board_name)
 
     # dataset load
-    raw_csv = "processed_csv_data/" + raw_csv_dir +".csv"
+    raw_csv = "processed_csv_data/shuffled_" + raw_csv_dir +".csv"
     dataset = csv2dataset(raw_csv)
     [sample_num, _] = dataset.shape
     reporter.info(f"Loaded csv data is {raw_csv_dir}")
@@ -171,29 +212,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-# def dFdX(sample):
-#     x_dot = sample[:,0]
-#     y_dot = sample[:,1]    
-#     yaw_dot = sample[:,2]
-#     delta = sample[:,3]
-#     # Frl = sample[:,4]
-#     # Frr = sample[:,5]
-    
-#     dfdx_op = np.array([
-#         [                                               -(2*Ca*np.sin(delta)*(y_dot + lf*yaw_dot))/(m*x_dot**2),             yaw_dot + (2*Ca*np.sin(delta))/(m*x_dot),                   y_dot + (2*Ca*lf*np.sin(delta))/(m*x_dot)],
-#         [((2*Ca*(y_dot - lr*yaw_dot))/x_dot**2 + (2*Ca*np.cos(delta)*(y_dot + lf*yaw_dot))/x_dot**2)/m - yaw_dot,       -((2*Ca)/x_dot + (2*Ca*np.cos(delta))/x_dot)/m, ((2*Ca*lr)/x_dot - (2*Ca*lf*np.cos(delta))/x_dot)/m - x_dot],
-#         [  -((2*Ca*lr*(y_dot - lr*yaw_dot))/x_dot**2 - (2*Ca*lf*np.cos(delta)*(y_dot + lf*yaw_dot))/x_dot**2)/Iz, ((2*Ca*lr)/x_dot - (2*Ca*lf*np.cos(delta))/x_dot)/Iz,   -((2*Ca*np.cos(delta)*lf**2)/x_dot + (2*Ca*lr**2)/x_dot)/Iz]
-#     ])
-    
-#     dfdu_op = np.array([ 
-#         [      -(2*Ca*np.sin(delta) + 2*Ca*np.cos(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/m,   1/m *(x_dot/x_dot),  1/m *(x_dot/x_dot)],
-#         [       (2*Ca*np.cos(delta) - 2*Ca*np.sin(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/m,     0 *(x_dot/x_dot),    0 *(x_dot/x_dot)],
-#         [(2*Ca*lf*np.cos(delta) - 2*Ca*lf*np.sin(delta)*(delta - (y_dot + lf*yaw_dot)/x_dot))/Iz, -w/Iz *(x_dot/x_dot), w/Iz *(x_dot/x_dot)]
-#     ])
-    
-#     dfdx = np.concatenate((dfdx_op, dfdu_op), axis=1) # state_num * (state_num + control_num)
-    
-#     dfdx = np.swapaxes(dfdx, 0, 2)
-#     dfdx = np.swapaxes(dfdx, 1, 2)    
-#     return dfdx

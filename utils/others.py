@@ -19,7 +19,7 @@ class NN(nn.Module):
             nn.ReLU(),            
             nn.Linear(1024, 1024),
             nn.ReLU(),                      
-            nn.Linear(1024, 3)
+            nn.Linear(1024, 1)
         )
     def forward(self, x):
         x = torch.nn.functional.normalize(x, dim=-1)

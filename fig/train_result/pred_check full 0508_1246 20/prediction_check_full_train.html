@@ -1,0 +1,568 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>prediction_check_full_train</title><meta name="generator" content="MATLAB 9.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-05-08"><meta name="DC.source" content="prediction_check_full_train.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#3">constants</a></li><li><a href="#4">overwrite constant!</a></li><li><a href="#5">simulation constants</a></li><li><a href="#6">prediction test constants</a></li><li><a href="#7">network load</a></li><li><a href="#8">data load</a></li><li><a href="#9">test data index peek</a></li><li><a href="#10">target, prediction calc</a></li><li><a href="#11">plot and report</a></li><li><a href="#12">function to calculate gradient</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> report_list = prediction_check_full_train(PLOT_DATA, seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np)
+</pre><pre class="codeinput">    close <span class="string">all</span>
+    fprintf(<span class="string">"\n======== Prediction Test at %s ========\n"</span>, char(datetime))
+</pre><pre class="codeoutput">
+======== Prediction Test at 2023-05-08 16:10:55 ========
+</pre><h2 id="3">constants</h2><pre class="codeinput">    <span class="keyword">if</span> nargin == 3
+        FILE_NAME = <span class="string">"0501_0133PM"</span>;
+
+        TEST_NUM = 5;
+        Ts = 0.01; Np = 100; Nc = Np;
+    <span class="keyword">elseif</span> nargin &lt; 5
+<span class="comment">%         seed = rng("Shuffle").Seed;</span>
+<span class="comment">%         seed = randi(1000);</span>
+<span class="comment">%         NN_NAME = "0504_0950PM/FINAL100000";</span>
+<span class="comment">%         NN_NAME = "0507_0544PM/FINAL100000";</span>
+<span class="comment">%         NN_NAME = "0507_0737PM/FINAL100000"; %0507_0542PM</span>
+<span class="comment">%         NN_NAME = "0507_0752PM/FINAL100000"; % 0507_0746PM</span>
+        NN_NAME = <span class="string">"0508_0339PM/21000"</span>; <span class="comment">% 0507_0746PM</span>
+
+
+<span class="comment">%         FILE_NAME = "0503_0649PM_withFy";</span>
+<span class="comment">%         FILE_NAME = "0507_0516PM";</span>
+<span class="comment">% FILE_NAME = "0507_0542PM"; % FreeSpace</span>
+<span class="comment">% FILE_NAME = "0507_0621PM";</span>
+<span class="comment">% FILE_NAME = "0507_0746PM"; % FreeSpace demo1 demo1_1</span>
+FILE_NAME = <span class="string">"0508_1258PM"</span>; <span class="comment">% testSet</span>
+
+
+TEST_NUM = 5;
+        Ts = 0.01; Np = 20; Nc = Np;
+
+        PLOT_DATA = true;
+<span class="comment">%         PLOT_DATA = false;</span>
+    <span class="keyword">end</span>
+
+    TEST_TRAIN_DATA_RATE = 0.1; Nc = Np;
+</pre><h2 id="4">overwrite constant!</h2><pre class="codeinput">    seed = 20135;
+</pre><h2 id="5">simulation constants</h2><pre class="codeinput">    state_num = 3;
+    control_num = 3;
+</pre><h2 id="6">prediction test constants</h2><pre class="codeinput">    fprintf(<span class="string">"test seed: %d\n"</span>, seed)
+    rng(seed)
+    format <span class="string">shortEng</span>
+    format <span class="string">compact</span>
+</pre><pre class="codeoutput">test seed: 20135
+</pre><h2 id="7">network load</h2><pre class="codeinput">    fprintf(<span class="string">"Loading Neural Network NN_NAME: %s\n"</span>, NN_NAME)
+    nn = <span class="string">"./savemodel/"</span> + NN_NAME + <span class="string">".onnx"</span>;
+    nn = importONNXNetwork( <span class="keyword">...</span>
+      nn,  TargetNetwork=<span class="string">"dlnetwork"</span>, InputDataFormats=<span class="string">"BC"</span>, OutputDataFormats=<span class="string">"BC"</span> <span class="keyword">...</span>
+    );
+    <span class="comment">% analyzeNetwork(nn)</span>
+</pre><pre class="codeoutput">Loading Neural Network NN_NAME: 0508_0339PM/21000
+</pre><h2 id="8">data load</h2><pre class="codeinput">    fprintf(<span class="string">"Loading DataSet FILE_NAME: %s\n"</span>, FILE_NAME)
+    shuffled_file_name = <span class="string">"processed_csv_data/shuffled_"</span> + FILE_NAME +<span class="string">".csv"</span>;
+    ori_file_name = <span class="string">"processed_csv_data/"</span> +  FILE_NAME + <span class="string">".csv"</span>;
+    shuffled_CM_data = readtable(shuffled_file_name);
+    CM_data = readtable(ori_file_name);
+
+    shuffled_CM_data = table2array(shuffled_CM_data);
+    CM_data = table2array(CM_data);
+
+    [data_num, var_num] = size(shuffled_CM_data);
+    [ori_data_num, var_num] = size(CM_data);
+</pre><pre class="codeoutput">Loading DataSet FILE_NAME: 0508_1258PM
+</pre><h2 id="9">test data index peek</h2><pre>   test_data_index = randi(floor(sample_num*TEST_TRAIN_DATA_RATE), 1, TEST_NUM);</pre><pre class="codeinput">    test_data_num = floor(data_num*TEST_TRAIN_DATA_RATE);
+    shuffled_CM_data = shuffled_CM_data(1:test_data_num, :);
+<span class="comment">%     shuffled_CM_data = shuffled_CM_data(test_data_index,:);</span>
+</pre><h2 id="10">target, prediction calc</h2><pre class="codeinput">    shuffled_index = shuffled_CM_data(:,1);
+    ori_time_list = CM_data(:,2);
+    CM_data = CM_data(:,3:end);
+
+    <span class="comment">% pre-allocate matrices</span>
+    prediction_Grad_list = zeros(1+Np, state_num*TEST_NUM);
+    prediction_analytic_list = zeros(1+Np, state_num*TEST_NUM);
+    obs_state_list = zeros(1+Np, state_num*TEST_NUM);
+    report_list = zeros(TEST_NUM, 4);
+    control_list = zeros(Np, control_num*TEST_NUM);
+
+    <span class="comment">% prediction start</span>
+    q = 1;
+    fprintf(<span class="string">"Prediction Start\n"</span>)
+<span class="comment">%     for sample = shuffled_CM_data</span>
+    <span class="keyword">while</span> true
+        <span class="keyword">if</span> q == TEST_NUM+1
+            <span class="keyword">break</span>
+        <span class="keyword">end</span>
+
+        test_idx = shuffled_index(randi(test_data_num));
+        <span class="keyword">if</span> test_idx+Np &gt; ori_data_num
+            <span class="keyword">continue</span>
+        <span class="keyword">end</span>
+        time_step_list = ori_time_list(test_idx+1:test_idx+Np-1, 1) - ori_time_list(test_idx:test_idx+Np-2, 1);
+
+        time_step_test = sum(time_step_list &lt; 0.011) == Np-1;
+
+        <span class="keyword">if</span> time_step_test
+<span class="comment">%             fprintf("test index: %d\n", test_idx)</span>
+            pred_target = CM_data(test_idx, 1:3);
+            sample = CM_data(test_idx, 4:end);
+            pred_target = pred_target';
+            sample = sample';
+        <span class="keyword">else</span>
+<span class="comment">%             fprintf("non-proper index %d\n", test_idx)</span>
+            <span class="keyword">continue</span>
+        <span class="keyword">end</span>
+
+        <span class="comment">% analytic calc</span>
+        f0 = analy_F(sample);
+        dfdx0 = analy_dFdX(sample);
+
+        <span class="comment">% input preparation for dl tookbox</span>
+        input_sample = dlarray(sample, <span class="string">"CB"</span>);
+<span class="comment">%         input_sample = dlarray(sample/norm(sample), "CB");</span>
+
+        <span class="comment">% NN Uncertainty Prediction Test =======================================</span>
+        g0 = extractdata(predict(nn, input_sample));
+        prediction_err = pred_target - g0;
+        report_list(q, 2) = norm(prediction_err, 2);
+
+        <span class="comment">% NN Gradient Calc =====================================================</span>
+        dgdx0 = zeros(3,6);
+        <span class="keyword">for</span> i = 1:1:3
+            [v,grad] = dlfeval(@model,nn,input_sample, i);
+            tmp = extractdata(grad); <span class="comment">% input_sample = extractdata(input_sample);</span>
+            dgdx0(i,:) = tmp(1:6);
+        <span class="keyword">end</span>
+
+        <span class="comment">% current state</span>
+        sample = sample(1:6);
+        cur_state = sample(1:3);
+
+        <span class="comment">% sample observed trajectory and control from CM</span>
+        obs_traj = CM_data(test_idx:test_idx+Np, 1:end);
+        obs_state = obs_traj(:,4:6);
+        obs_state_list(:, (q-1)*3+1:(q-1)*3+3) = obs_state;
+        report_list(q, 1) = obs_state(1) * 3.6; <span class="comment">% initial velx</span>
+
+        obs_control = obs_traj(1:end-1,7:9);
+        control_list(:, (q-1)*3+1:(q-1)*3+3) = obs_control;
+        obs_control = obs_control';
+        controlInput = reshape(obs_control, [], 1);
+
+<span class="comment">%             dgdx0 = zeros(size(dgdx0));</span>
+
+        <span class="comment">% nominal point</span>
+        Dx_analytic = f0 - dfdx0 * sample;
+        Dx_proposed = g0 - dgdx0 * sample;
+
+        Dx_analytic = Dx_analytic * Ts;
+        Dx_proposed = Dx_proposed * Ts;
+
+
+        <span class="comment">% prediction calc main</span>
+        [traj, err] = pred_err_calc(dgdx0, Dx_proposed, cur_state, obs_state, controlInput, Np, Nc, Ts);
+        prediction_Grad_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
+        report_list(q, 3) = norm(err, 2);
+
+        [traj, err] = pred_err_calc(dfdx0, Dx_analytic, cur_state, obs_state, controlInput, Np, Nc, Ts);
+        prediction_analytic_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
+        report_list(q, 4) = norm(err, 2);
+
+        q = q+1;
+    <span class="keyword">end</span>
+</pre><pre class="codeoutput">Prediction Start
+</pre><h2 id="11">plot and report</h2><pre class="codeinput">    report_list = array2table(report_list, <span class="string">'VariableNames'</span>, <span class="keyword">...</span>
+        {<span class="string">'Vx0'</span>, <span class="string">'pred_err'</span>, <span class="string">'full'</span>, <span class="string">'analytic'</span>});
+    report_list = varfun(@mean, report_list, <span class="string">'InputVariables'</span>, @isnumeric);
+
+    traj_err = [ <span class="keyword">...</span>
+        sqrt(mean(reshape(mean((prediction_Grad_list - obs_state_list).^2), [], TEST_NUM),2))'
+        sqrt(mean(reshape(mean((prediction_analytic_list - obs_state_list).^2), [], TEST_NUM),2))'
+    ]';
+    traj_err = array2table(traj_err, <span class="string">'VariableNames'</span>, <span class="keyword">...</span>
+        {<span class="string">'full'</span>, <span class="string">'analytic'</span>})
+
+    one_step_err = [<span class="keyword">...</span>
+        sqrt(mean(reshape((prediction_Grad_list(2,:) - obs_state_list(2,:)).^2, [], TEST_NUM),2))'
+        sqrt(mean(reshape((prediction_analytic_list(2,:) - obs_state_list(2,:)).^2, [], TEST_NUM),2))'
+    ]';
+    one_step_err = array2table(one_step_err, <span class="string">'VariableNames'</span>, <span class="keyword">...</span>
+        {<span class="string">'full'</span>, <span class="string">'analytic'</span>})
+
+    x_axis = 0:1:Np;
+    <span class="keyword">if</span> PLOT_DATA
+        <span class="keyword">if</span> TEST_NUM &lt;= 5
+            PLOT_NUM = TEST_NUM;
+        <span class="keyword">else</span>
+            PLOT_NUM = 5;
+        <span class="keyword">end</span>
+
+        <span class="keyword">for</span> s = 1:1:PLOT_NUM
+            figure(s)
+            tiledlayout(3,1);
+
+            nexttile
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+1), <span class="string">'r--o'</span>);
+            hold <span class="string">on</span>
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+1), <span class="string">'b*'</span>);
+            plot(x_axis, obs_state_list(:, (s-1)*3+1), <span class="string">'g'</span>);
+            xlabel(<span class="string">"Time Step [0.01ms]"</span>)
+            ylabel(<span class="string">"Vx [m/s]"</span>)
+            grid <span class="string">on</span>
+
+            nexttile
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+2), <span class="string">'r--o'</span>);
+            hold <span class="string">on</span>
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+2), <span class="string">'b*'</span>);
+            plot(x_axis, obs_state_list(:, (s-1)*3+2), <span class="string">'g'</span>);
+            xlabel(<span class="string">"Time Step [0.01ms]"</span>)
+            ylabel(<span class="string">"Vy [m/s]"</span>)
+            grid <span class="string">on</span>
+
+            nexttile
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+3), <span class="string">'r--o'</span>);
+            hold <span class="string">on</span>
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+3), <span class="string">'b*'</span>);
+            plot(x_axis, obs_state_list(:, (s-1)*3+3), <span class="string">'g'</span>);
+            xlabel(<span class="string">"Time Step [0.01ms]"</span>)
+            ylabel(<span class="string">"YawRate [rad/s]"</span>)
+            grid <span class="string">on</span>
+
+            lgd = legend(<span class="string">'full train'</span>, <span class="string">'analytic prediction'</span>, <span class="string">'ground truth'</span>);
+            lgd.Layout.Tile = <span class="string">'south'</span>;
+            lgd.NumColumns = 3;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><pre class="codeoutput">traj_err =
+  3&times;2 table
+     full      analytic
+    _______    ________
+    0.13616    0.59858 
+    0.26282    0.84772 
+    0.10622    0.81951 
+one_step_err =
+  3&times;2 table
+      full      analytic
+    ________    ________
+    0.010223    0.12948 
+    0.037644    0.22135 
+    0.018865    0.17984 
+</pre><img vspace="5" hspace="5" src="prediction_check_full_train_01.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_full_train_02.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_full_train_03.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_full_train_04.png" alt=""> <img vspace="5" hspace="5" src="prediction_check_full_train_05.png" alt=""> <h2 id="12">function to calculate gradient</h2><pre class="codeinput">    <span class="keyword">function</span> [y, g] = model(net, x, i)
+       y = forward(net, x);
+       y = y(i);
+       g = dlgradient(y, x);
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">ans =
+  1&times;4 table
+    mean_Vx0    mean_pred_err    mean_full    mean_analytic
+    ________    _____________    _________    _____________
+     29.457        2.1294        0.077495        1.1109    
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function report_list = prediction_check_full_train(PLOT_DATA, seed, NN_NAME, FILE_NAME, TEST_NUM, Ts, Np)
+    close all
+    fprintf("\n======== Prediction Test at %s ========\n", char(datetime))
+    %% constants
+    if nargin == 3
+        FILE_NAME = "0501_0133PM";
+
+        TEST_NUM = 5;
+        Ts = 0.01; Np = 100; Nc = Np;
+    elseif nargin < 5
+%         seed = rng("Shuffle").Seed;
+%         seed = randi(1000);
+%         NN_NAME = "0504_0950PM/FINAL100000";
+%         NN_NAME = "0507_0544PM/FINAL100000";
+%         NN_NAME = "0507_0737PM/FINAL100000"; %0507_0542PM
+%         NN_NAME = "0507_0752PM/FINAL100000"; % 0507_0746PM
+        NN_NAME = "0508_0339PM/21000"; % 0507_0746PM
+
+
+%         FILE_NAME = "0503_0649PM_withFy";
+%         FILE_NAME = "0507_0516PM";
+% FILE_NAME = "0507_0542PM"; % FreeSpace        
+% FILE_NAME = "0507_0621PM";
+% FILE_NAME = "0507_0746PM"; % FreeSpace demo1 demo1_1
+FILE_NAME = "0508_1258PM"; % testSet
+
+
+TEST_NUM = 5;
+        Ts = 0.01; Np = 20; Nc = Np;
+        
+        PLOT_DATA = true;
+%         PLOT_DATA = false;
+    end
+
+    TEST_TRAIN_DATA_RATE = 0.1; Nc = Np;
+    %% overwrite constant!
+    seed = 20135;
+
+    %% simulation constants
+    state_num = 3;
+    control_num = 3;
+    %% prediction test constants
+    fprintf("test seed: %d\n", seed)
+    rng(seed)
+    format shortEng
+    format compact
+    %% network load
+    fprintf("Loading Neural Network NN_NAME: %s\n", NN_NAME)    
+    nn = "./savemodel/" + NN_NAME + ".onnx";
+    nn = importONNXNetwork( ...
+      nn,  TargetNetwork="dlnetwork", InputDataFormats="BC", OutputDataFormats="BC" ...
+    );
+    % analyzeNetwork(nn)
+    
+    %% data load
+    fprintf("Loading DataSet FILE_NAME: %s\n", FILE_NAME)        
+    shuffled_file_name = "processed_csv_data/shuffled_" + FILE_NAME +".csv";
+    ori_file_name = "processed_csv_data/" +  FILE_NAME + ".csv";
+    shuffled_CM_data = readtable(shuffled_file_name);
+    CM_data = readtable(ori_file_name);
+    
+    shuffled_CM_data = table2array(shuffled_CM_data);
+    CM_data = table2array(CM_data);    
+
+    [data_num, var_num] = size(shuffled_CM_data);
+    [ori_data_num, var_num] = size(CM_data);
+    
+
+    %% test data index peek
+%     test_data_index = randi(floor(sample_num*TEST_TRAIN_DATA_RATE), 1, TEST_NUM);
+    test_data_num = floor(data_num*TEST_TRAIN_DATA_RATE);
+    shuffled_CM_data = shuffled_CM_data(1:test_data_num, :);
+%     shuffled_CM_data = shuffled_CM_data(test_data_index,:);
+
+    %% target, prediction calc
+    shuffled_index = shuffled_CM_data(:,1);
+    ori_time_list = CM_data(:,2);
+    CM_data = CM_data(:,3:end);
+
+    % pre-allocate matrices
+    prediction_Grad_list = zeros(1+Np, state_num*TEST_NUM); 
+    prediction_analytic_list = zeros(1+Np, state_num*TEST_NUM);
+    obs_state_list = zeros(1+Np, state_num*TEST_NUM); 
+    report_list = zeros(TEST_NUM, 4); 
+    control_list = zeros(Np, control_num*TEST_NUM);
+    
+    % prediction start
+    q = 1;
+    fprintf("Prediction Start\n")            
+%     for sample = shuffled_CM_data
+    while true
+        if q == TEST_NUM+1
+            break
+        end
+        
+        test_idx = shuffled_index(randi(test_data_num));
+        if test_idx+Np > ori_data_num
+            continue
+        end
+        time_step_list = ori_time_list(test_idx+1:test_idx+Np-1, 1) - ori_time_list(test_idx:test_idx+Np-2, 1);
+
+        time_step_test = sum(time_step_list < 0.011) == Np-1;
+        
+        if time_step_test
+%             fprintf("test index: %d\n", test_idx)
+            pred_target = CM_data(test_idx, 1:3);
+            sample = CM_data(test_idx, 4:end);
+            pred_target = pred_target';
+            sample = sample';
+        else
+%             fprintf("non-proper index %d\n", test_idx)
+            continue
+        end
+
+        % analytic calc
+        f0 = analy_F(sample);
+        dfdx0 = analy_dFdX(sample);
+    
+        % input preparation for dl tookbox
+        input_sample = dlarray(sample, "CB");
+%         input_sample = dlarray(sample/norm(sample), "CB");
+
+        % NN Uncertainty Prediction Test =======================================
+        g0 = extractdata(predict(nn, input_sample));        
+        prediction_err = pred_target - g0;
+        report_list(q, 2) = norm(prediction_err, 2);  
+    
+        % NN Gradient Calc =====================================================
+        dgdx0 = zeros(3,6);
+        for i = 1:1:3
+            [v,grad] = dlfeval(@model,nn,input_sample, i);
+            tmp = extractdata(grad); % input_sample = extractdata(input_sample);
+            dgdx0(i,:) = tmp(1:6);
+        end
+        
+        % current state
+        sample = sample(1:6);
+        cur_state = sample(1:3);
+    
+        % sample observed trajectory and control from CM
+        obs_traj = CM_data(test_idx:test_idx+Np, 1:end);
+        obs_state = obs_traj(:,4:6);
+        obs_state_list(:, (q-1)*3+1:(q-1)*3+3) = obs_state;
+        report_list(q, 1) = obs_state(1) * 3.6; % initial velx
+
+        obs_control = obs_traj(1:end-1,7:9);
+        control_list(:, (q-1)*3+1:(q-1)*3+3) = obs_control;
+        obs_control = obs_control';
+        controlInput = reshape(obs_control, [], 1);
+
+%             dgdx0 = zeros(size(dgdx0));
+
+        % nominal point
+        Dx_analytic = f0 - dfdx0 * sample;        
+        Dx_proposed = g0 - dgdx0 * sample;
+        
+        Dx_analytic = Dx_analytic * Ts;  
+        Dx_proposed = Dx_proposed * Ts;    
+
+
+        % prediction calc main
+        [traj, err] = pred_err_calc(dgdx0, Dx_proposed, cur_state, obs_state, controlInput, Np, Nc, Ts);
+        prediction_Grad_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
+        report_list(q, 3) = norm(err, 2);
+
+        [traj, err] = pred_err_calc(dfdx0, Dx_analytic, cur_state, obs_state, controlInput, Np, Nc, Ts);
+        prediction_analytic_list(:, (q-1)*3+1:(q-1)*3+3) = traj;
+        report_list(q, 4) = norm(err, 2);
+    
+        q = q+1;
+    end
+    
+    %% plot and report
+    report_list = array2table(report_list, 'VariableNames', ...
+        {'Vx0', 'pred_err', 'full', 'analytic'});
+    report_list = varfun(@mean, report_list, 'InputVariables', @isnumeric);
+
+    traj_err = [ ...
+        sqrt(mean(reshape(mean((prediction_Grad_list - obs_state_list).^2), [], TEST_NUM),2))'
+        sqrt(mean(reshape(mean((prediction_analytic_list - obs_state_list).^2), [], TEST_NUM),2))'
+    ]';
+    traj_err = array2table(traj_err, 'VariableNames', ...
+        {'full', 'analytic'})
+
+    one_step_err = [...
+        sqrt(mean(reshape((prediction_Grad_list(2,:) - obs_state_list(2,:)).^2, [], TEST_NUM),2))'
+        sqrt(mean(reshape((prediction_analytic_list(2,:) - obs_state_list(2,:)).^2, [], TEST_NUM),2))'
+    ]';
+    one_step_err = array2table(one_step_err, 'VariableNames', ...
+        {'full', 'analytic'})
+
+    x_axis = 0:1:Np;
+    if PLOT_DATA
+        if TEST_NUM <= 5
+            PLOT_NUM = TEST_NUM;
+        else
+            PLOT_NUM = 5;
+        end
+
+        for s = 1:1:PLOT_NUM
+            figure(s)
+            tiledlayout(3,1);
+    
+            nexttile
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+1), 'rREPLACE_WITH_DASH_DASHo');
+            hold on 
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+1), 'b*');
+            plot(x_axis, obs_state_list(:, (s-1)*3+1), 'g');
+            xlabel("Time Step [0.01ms]")
+            ylabel("Vx [m/s]") 
+            grid on
+        
+            nexttile
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+2), 'rREPLACE_WITH_DASH_DASHo');
+            hold on 
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+2), 'b*');   
+            plot(x_axis, obs_state_list(:, (s-1)*3+2), 'g');     
+            xlabel("Time Step [0.01ms]")
+            ylabel("Vy [m/s]") 
+            grid on
+        
+            nexttile
+            plot(x_axis, prediction_Grad_list(:, (s-1)*3+3), 'rREPLACE_WITH_DASH_DASHo');
+            hold on
+            plot(x_axis, prediction_analytic_list(:, (s-1)*3+3), 'b*'); 
+            plot(x_axis, obs_state_list(:, (s-1)*3+3), 'g');
+            xlabel("Time Step [0.01ms]")
+            ylabel("YawRate [rad/s]") 
+            grid on
+    
+            lgd = legend('full train', 'analytic prediction', 'ground truth');
+            lgd.Layout.Tile = 'south';
+            lgd.NumColumns = 3;
+        end
+    end
+    
+
+    %% function to calculate gradient
+    function [y, g] = model(net, x, i)
+       y = forward(net, x);
+       y = y(i);
+       g = dlgradient(y, x);
+    end    
+end
+   
+##### SOURCE END #####
+--></body></html>

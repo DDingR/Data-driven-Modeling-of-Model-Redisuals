@@ -11,7 +11,7 @@ from time import time, localtime, strftime
 from utils.others import *
 from utils.reporter import *
 
-raw_csv_dir = "0507_0621PM"
+raw_csv_dir = "0507_0746PM"
 
 # START ========================================
 # CONSTANTS ====================================

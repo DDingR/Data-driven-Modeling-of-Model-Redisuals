@@ -15,7 +15,9 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
 %         NN_NAME = "0507_0737PM/FINAL100000"; %0507_0542PM
 %         NN_NAME = "0507_0752PM/FINAL100000"; % 0507_0746PM
         NN_NAME = "0508_1246PM/23000"; % 0507_0746PM
-
+%         NN_NAME = "0508_1246PM/5000"; % 0507_0746PM
+%         NN_NAME = "0508_0339PM/21000"; % 0507_0746PM
+%         NN_NAME = "0508_0508PM/36000"; % 0507_0746PM
 
 %         FILE_NAME = "0503_0649PM_withFy";
 %         FILE_NAME = "0507_0516PM";
@@ -25,8 +27,8 @@ function report_list = prediction_check(PLOT_DATA, seed, NN_NAME, FILE_NAME, TES
 FILE_NAME = "0508_1258PM"; % testSet
 
 
-TEST_NUM = 50;
-        Ts = 0.01; Np = 10; Nc = Np;
+TEST_NUM = 10;
+        Ts = 0.01; Np = 20; Nc = Np;
         
         PLOT_DATA = true;
 %         PLOT_DATA = false;
@@ -34,7 +36,7 @@ TEST_NUM = 50;
 
     TEST_TRAIN_DATA_RATE = 0.1; Nc = Np;
     %% overwrite constant!
-    seed = 20135;
+    seed = 205;
 
     %% simulation constants
     state_num = 3;
