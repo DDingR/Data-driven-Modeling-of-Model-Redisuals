@@ -1,8 +1,0 @@
-"2023-05-10 00:04:55,546 [INFO] Reporter Initialized!
-"2023-05-10 00:04:55,546 [INFO] Reporter LEVEL: info
-"2023-05-10 00:04:55,550 [INFO] Usung random data
-"2023-05-10 00:04:55,675 [INFO] None
-"2023-05-10 00:04:55,676 [INFO] Device(cpu) is working for train
-"2023-05-10 00:04:55,677 [INFO] Train Started
-"2023-05-10 00:04:56,393 [INFO] train finished. 
-final loss: 493.9815368652344

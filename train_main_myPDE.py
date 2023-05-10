@@ -14,11 +14,11 @@ from utils.reporter import *
 # START ========================================
 # CONSTANTS ====================================
 EPISODE = int(1e4)
-EPOCH = int(5)
-BATCH_SIZE = 64
+EPOCH = int(10)
+BATCH_SIZE = 32
 VALIDATION_SIZE = 16
 SAVE_START = int(1)
-SAVE_PER_EPISODE = int(1e3)
+SAVE_PER_EPISODE = int(5e2)
 PLOT_PER_EPISODE = int(10)
 PLOT_FROM = 1e1
 # END ==========================================
@@ -40,7 +40,24 @@ def G(sample):
     ddots = ddots.T
     return ddots 
 
+def F(sample):
+    x1 = sample[:,0]
+    x2 = sample[:,1]    
+    x3 = sample[:,2]
+    u1 = sample[:,3]
+    u2 = sample[:,4]
+    u3 = sample[:,5]
+    
+    x1_ddot = (((np.cos(u1) - (x2+x3) * np.sin(u1)) + u2+u3) + x3*x2) * 10
+    x2_ddot = (((np.sin(u1) + (x2+x3) * np.cos(u1)) + (x2-x3)) - x3*x1) * 10
+    x3_ddot = ((((np.sin(u1) + (x2+x3) * np.cos(u1)) - (x2-x3)) + u3-u2))  * 10
+
+    ddots = np.array([x1_ddot, x2_ddot, x3_ddot])
+    ddots = ddots.T
+    return ddots 
+
 def main():  
+    np.random.seed(0)
     # reporter config
     # cur_dir = os.getcwd()
     cur_time = strftime("%m%d_%I%M%p", localtime(time()))
@@ -79,7 +96,7 @@ def main():
         for episode in range(EPISODE):
             with torch.no_grad():
                 input_data = (np.random.rand(VALIDATION_SIZE, var_num) - 1/2) * 2 * 1.5
-                target = G(input_data)
+                target = G(input_data)# + F(input_data)
 
                 X_list = np2tensor(input_data, device)    
                 target = np2tensor(target, device)
@@ -107,7 +124,7 @@ def main():
 
             # EPOCH TRAIN
             input_data = (np.random.rand(BATCH_SIZE, var_num) - 1/2) * 2 * 1.5
-            target = G(input_data)
+            target = G(input_data) #+ F(input_data)
 
             X_list = np2tensor(input_data, device)    
             target = np2tensor(target, device)
