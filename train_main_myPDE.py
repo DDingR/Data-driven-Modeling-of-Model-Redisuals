@@ -13,14 +13,19 @@ from utils.reporter import *
 
 # START ========================================
 # CONSTANTS ====================================
-EPISODE = int(1e4)
-EPOCH = int(10)
+EPISODE = int(1e3)
+EPOCH = int(1)
 BATCH_SIZE = 32
 VALIDATION_SIZE = 16
 SAVE_START = int(1)
-SAVE_PER_EPISODE = int(5e2)
+SAVE_PER_EPISODE = int(1e1)
 PLOT_PER_EPISODE = int(10)
 PLOT_FROM = 1e1
+
+SPECIAL_COMMENT = " \
+    Trained with myPDE, G, Again with save onnx per 10; 128 nodes\
+"
+
 # END ==========================================
 # CONSTANTS ====================================
 
@@ -62,12 +67,15 @@ def main():
     # cur_dir = os.getcwd()
     cur_time = strftime("%m%d_%I%M%p", localtime(time()))
     cur_time = cur_time + "_MY_PDE"
-    log_name = cur_time + ".log"
+    log_name = cur_time
     board_name = "runs/" + cur_time
     reporter = reporter_loader("info", log_name)
     boardWriter = SummaryWriter(board_name)
 
-    reporter.info(f"Usung random data")
+    reporter.info("***** SPECIAL COMMENT *****")
+    reporter.info(f"{SPECIAL_COMMENT}")
+
+    reporter.info(f"Using random data")
     
     var_num = 6
 
@@ -96,7 +104,7 @@ def main():
         for episode in range(EPISODE):
             with torch.no_grad():
                 input_data = (np.random.rand(VALIDATION_SIZE, var_num) - 1/2) * 2 * 1.5
-                target = G(input_data)# + F(input_data)
+                target = G(input_data) #+ F(input_data)
 
                 X_list = np2tensor(input_data, device)    
                 target = np2tensor(target, device)
@@ -124,7 +132,7 @@ def main():
 
             # EPOCH TRAIN
             input_data = (np.random.rand(BATCH_SIZE, var_num) - 1/2) * 2 * 1.5
-            target = G(input_data) #+ F(input_data)
+            target = G(input_data)# + F(input_data)
 
             X_list = np2tensor(input_data, device)    
             target = np2tensor(target, device)
@@ -138,8 +146,8 @@ def main():
                 optimizer.step()
 
     finally:
-        reporter.info(f"train finished. \nfinal loss: {loss}")
-        saveONNX(model,var_num,reporter, device, "FINAL" + str(EPISODE), onnx_path)
+        reporter.info(f"train finished. \nfinal loss: {loss} at episode {episode}")
+        saveONNX(model,var_num,reporter, device, "FINAL", onnx_path)
 
 if __name__ == '__main__':
     main()

@@ -1,0 +1,2895 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>train_compare</title><meta name="generator" content="MATLAB 9.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-05-10"><meta name="DC.source" content="train_compare.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">prediction test</a></li></ul></div><pre class="codeinput"><span class="comment">% MAIN FUNCTION TO EXECUTE THE MATLAB FUNCTION</span>
+format <span class="string">shortEng</span>
+format <span class="string">compact</span>
+</pre><h2 id="2">prediction test</h2><pre class="codeinput">PLOT_DATA = false;
+TRAIN_CHECK = true;
+TEST_NUM = 10;
+Ts = 0.01; Np = 20;
+
+NN_dir = <span class="string">"0510_0726PM_MY_PDE"</span>;
+NN_full_dir = <span class="string">"0510_0725PM_MY_PDE"</span>;
+</pre><pre class="codeinput">NN_info = dir(NN_dir);
+NN_num = length(NN_info)-2;
+NUM_LIST = [];
+NN_NAME_LIST = [];
+<span class="keyword">for</span> l = 1:1:NN_num
+    num = NN_info(2+l).name(1:end-5);
+    num = str2double(num);
+    <span class="keyword">if</span> rem(num, 10) == 0 || isnan(num)
+        NUM_LIST = [NUM_LIST num];
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+NUM_LIST = sort(NUM_LIST);
+
+<span class="keyword">for</span> l = 1:1:length(NUM_LIST)
+    tmp = num2str(NUM_LIST(l));
+    <span class="keyword">if</span> strcmp(tmp, <span class="string">"NaN"</span>)
+        NN_NAME_LIST = [NN_NAME_LIST NN_dir + <span class="string">"/FINAL1000"</span>];
+    <span class="keyword">else</span>
+        NN_NAME_LIST = [NN_NAME_LIST NN_dir + <span class="string">"/"</span> + tmp];
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+NN_info = dir(NN_full_dir);
+NN_num = length(NN_info)-2;
+NUM_LIST = [];
+NN_NAME_FULL_LIST = [];
+<span class="keyword">for</span> l = 1:1:NN_num
+    num = NN_info(2+l).name(1:end-5);
+    num = str2double(num);
+    <span class="keyword">if</span> rem(num, 10) == 0 || isnan(num)
+        NUM_LIST = [NUM_LIST num];
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+NUM_LIST = sort(NUM_LIST);
+
+<span class="keyword">for</span> l = 1:1:length(NUM_LIST)
+    tmp = num2str(NUM_LIST(l));
+    <span class="keyword">if</span> strcmp(tmp, <span class="string">"NaN"</span>)
+        NN_NAME_FULL_LIST = [NN_NAME_FULL_LIST NN_full_dir + <span class="string">"/FINAL1000"</span>];
+    <span class="keyword">else</span>
+        NN_NAME_FULL_LIST = [NN_NAME_FULL_LIST NN_full_dir + <span class="string">"/"</span> + tmp];
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><pre class="codeinput">rst_list = []; j = 1;
+
+<span class="keyword">if</span> length(NN_NAME_LIST) ~= length(NN_NAME_FULL_LIST)
+    fprintf(<span class="string">"%d, %d"</span>,length(NN_NAME_LIST),length(NN_NAME_FULL_LIST))
+	error(<span class="string">"not same length of NN and NN_FULL"</span>)
+<span class="keyword">end</span>
+
+<span class="keyword">for</span> k = 1:1:length(NUM_LIST)
+    NN_NAME = NN_NAME_LIST(k);
+    NN_FULL = NN_NAME_FULL_LIST(k);
+    rst = prediction_check(PLOT_DATA, NN_NAME, NN_FULL, TEST_NUM, Ts, Np)
+    rst = table2array(rst);
+
+    <span class="keyword">if</span> isempty(rst_list)
+        rst_list = rst;
+    <span class="keyword">else</span>
+        rst_list(:,:,j) = rst;
+    <span class="keyword">end</span>
+    j = j + 1;
+ <span class="keyword">end</span>
+
+
+rst_list = sqrt(mean(rst_list.^2));
+</pre><pre class="codeoutput">
+======== Prediction Test at 2023-05-10 19:53:31 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/0
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/0
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    4.0057    15.432    3.9591
+    6.4483     21.59    6.4201
+    4.8124    18.192    4.7878
+one_step_err =
+  3&times;3 table
+       G          FG          F    
+    ________    _______    ________
+    0.019168    0.21281    0.019336
+    0.021225    0.22926     0.02082
+    0.022425    0.24685    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    4.0057    15.432    3.9591
+    6.4483     21.59    6.4201
+    4.8124    18.192    4.7878
+
+======== Prediction Test at 2023-05-10 19:53:35 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/10
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/10
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    3.7762    15.427    3.9591
+    6.1343    21.589    6.4201
+    4.5384    18.172    4.7878
+one_step_err =
+  3&times;3 table
+       G          FG          F    
+    ________    _______    ________
+    0.017581    0.21144    0.019336
+    0.019662    0.22852     0.02082
+    0.020959    0.24474    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    3.7762    15.427    3.9591
+    6.1343    21.589    6.4201
+    4.5384    18.172    4.7878
+
+======== Prediction Test at 2023-05-10 19:53:39 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/20
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/20
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    3.3865    15.416    3.9591
+    5.5222    21.581    6.4201
+    3.9043    18.116    4.7878
+one_step_err =
+  3&times;3 table
+       G          FG          F    
+    ________    _______    ________
+    0.015641    0.20869    0.019336
+    0.016349    0.22663     0.02082
+    0.017177     0.2389    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    3.3865    15.416    3.9591
+    5.5222    21.581    6.4201
+    3.9043    18.116    4.7878
+
+======== Prediction Test at 2023-05-10 19:53:43 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/30
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/30
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    2.4458    15.393    3.9591
+     4.056    21.555    6.4201
+    2.3915    17.959    4.7878
+one_step_err =
+  3&times;3 table
+        G          FG          F    
+    _________    _______    ________
+     0.013887    0.20276    0.019336
+    0.0094476      0.221     0.02082
+     0.008613    0.22365    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    2.4458    15.393    3.9591
+     4.056    21.555    6.4201
+    2.3915    17.959    4.7878
+
+======== Prediction Test at 2023-05-10 19:53:47 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/40
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/40
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+     1.567    15.356    3.9591
+    2.6718     21.51    6.4201
+      1.08    17.481    4.7878
+one_step_err =
+  3&times;3 table
+        G          FG          F    
+    _________    _______    ________
+     0.011701    0.19055    0.019336
+    0.0047052    0.21235     0.02082
+    0.0044154    0.18982    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+     1.567    15.356    3.9591
+    2.6718     21.51    6.4201
+      1.08    17.481    4.7878
+
+======== Prediction Test at 2023-05-10 19:53:51 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/50
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/50
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.7024    15.346    3.9591
+    2.5214    21.346    6.4201
+    1.1219    16.026    4.7878
+one_step_err =
+  3&times;3 table
+        G          FG          F    
+    _________    _______    ________
+    0.0095485    0.18192    0.019336
+    0.0052419    0.19286     0.02082
+    0.0035354    0.13217    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.7024    15.346    3.9591
+    2.5214    21.346    6.4201
+    1.1219    16.026    4.7878
+
+======== Prediction Test at 2023-05-10 19:53:55 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/60
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/60
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.8559    15.434    3.9591
+    2.7108    20.799    6.4201
+    1.6394    13.447    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0078959     0.17886    0.019336
+    0.0048894      0.1543     0.02082
+    0.0042452    0.078415    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.8559    15.434    3.9591
+    2.7108    20.799    6.4201
+    1.6394    13.447    4.7878
+
+======== Prediction Test at 2023-05-10 19:53:59 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/70
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/70
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.6891     15.54    3.9591
+     2.458    19.824    6.4201
+    1.5008    13.236    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0059683     0.17557    0.019336
+    0.0048251    0.099206     0.02082
+    0.0041774    0.058968    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.6891     15.54    3.9591
+     2.458    19.824    6.4201
+    1.5008    13.236    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:03 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/80
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/80
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.4935    15.598    3.9591
+    2.1697    21.189    6.4201
+    1.3247    12.212    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0042243     0.16158    0.019336
+    0.0042625    0.097528     0.02082
+    0.0025649    0.054275    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.4935    15.598    3.9591
+    2.1697    21.189    6.4201
+    1.3247    12.212    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:07 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/90
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/90
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.4611    15.366    3.9591
+    2.2662    19.064    6.4201
+    1.4467    11.093    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0034271     0.15174    0.019336
+    0.0041543    0.069912     0.02082
+    0.0031967    0.052359    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.4611    15.366    3.9591
+    2.2662    19.064    6.4201
+    1.4467    11.093    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:11 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/100
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/100
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.3061    15.076    3.9591
+    2.1957    18.774    6.4201
+    1.3129    9.8761    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0035158     0.13877    0.019336
+    0.0046871    0.084072     0.02082
+    0.0025478    0.044053    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.3061    15.076    3.9591
+    2.1957    18.774    6.4201
+    1.3129    9.8761    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:15 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/110
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/110
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.3406    14.928    3.9591
+    2.2788    18.091    6.4201
+    1.4393    9.7624    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0038451     0.12507    0.019336
+    0.0048639    0.071654     0.02082
+    0.0035741    0.046814    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.3406    14.928    3.9591
+    2.2788    18.091    6.4201
+    1.4393    9.7624    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:19 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/120
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/120
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.3185    14.489    3.9591
+    2.0584    18.012    6.4201
+    1.4226    9.4762    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+     0.003111     0.10828    0.019336
+    0.0030248    0.062902     0.02082
+    0.0030556    0.042721    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.3185    14.489    3.9591
+    2.0584    18.012    6.4201
+    1.4226    9.4762    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:23 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/130
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/130
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+     1.345    13.881    3.9591
+    2.0365    17.693    6.4201
+    1.3794     9.575    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0019715    0.099371    0.019336
+    0.0030429    0.056053     0.02082
+    0.0032392    0.040017    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+     1.345    13.881    3.9591
+    2.0365    17.693    6.4201
+    1.3794     9.575    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:27 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/140
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/140
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.4113    13.513    3.9591
+    2.2075    17.875    6.4201
+    1.5075    9.2155    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0017727    0.092659    0.019336
+    0.0035358    0.049739     0.02082
+    0.0038468    0.038173    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.4113    13.513    3.9591
+    2.2075    17.875    6.4201
+    1.5075    9.2155    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:31 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/150
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/150
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.3359    13.082    3.9591
+     2.177    16.937    6.4201
+    1.3696    9.1618    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0017937    0.089369    0.019336
+    0.0031864    0.049585     0.02082
+    0.0032773    0.041835    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.3359    13.082    3.9591
+     2.177    16.937    6.4201
+    1.3696    9.1618    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:35 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/160
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/160
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+     1.227    12.368    3.9591
+     1.971    15.437    6.4201
+    1.2552    8.7669    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0019007    0.074487    0.019336
+    0.0026442    0.041738     0.02082
+    0.0027723    0.033707    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+     1.227    12.368    3.9591
+     1.971    15.437    6.4201
+    1.2552    8.7669    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:39 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/170
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/170
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.1881    11.487    3.9591
+     1.992     16.47    6.4201
+     1.217    8.5937    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0021958    0.058796    0.019336
+    0.0026809    0.037522     0.02082
+    0.0030268    0.029379    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.1881    11.487    3.9591
+     1.992     16.47    6.4201
+     1.217    8.5937    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:43 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/180
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/180
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.2406    11.288    3.9591
+    2.0966    14.538    6.4201
+    1.2898      9.33    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0017629    0.063285    0.019336
+    0.0033658    0.030098     0.02082
+    0.0034173    0.033105    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.2406    11.288    3.9591
+    2.0966    14.538    6.4201
+    1.2898      9.33    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:47 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/190
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/190
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.1209    10.957    3.9591
+    2.0244    14.943    6.4201
+    1.1581    9.4331    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0018513    0.046195    0.019336
+     0.002058     0.03292     0.02082
+    0.0020953    0.036455    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.1209    10.957    3.9591
+    2.0244    14.943    6.4201
+    1.1581    9.4331    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:51 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/200
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/200
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+     1.185    10.451    3.9591
+     2.062    14.657    6.4201
+    1.2213    9.3026    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0016982    0.042503    0.019336
+    0.0022863    0.039877     0.02082
+    0.0023331    0.030217    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+     1.185    10.451    3.9591
+     2.062    14.657    6.4201
+    1.2213    9.3026    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:55 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/210
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/210
+Prediction Start
+traj_err =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.1957    10.386    3.9591
+    2.0888    13.854    6.4201
+    1.2424    9.4473    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+     0.001903     0.04303    0.019336
+    0.0025032    0.040358     0.02082
+    0.0027962    0.031218    0.022459
+rst =
+  3&times;3 table
+      G         FG        F   
+    ______    ______    ______
+    1.1957    10.386    3.9591
+    2.0888    13.854    6.4201
+    1.2424    9.4473    4.7878
+
+======== Prediction Test at 2023-05-10 19:54:59 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/220
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/220
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.93464    10.035    3.9591
+     1.7264    13.184    6.4201
+    0.93182    9.6307    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+     0.002241    0.032541    0.019336
+    0.0014972     0.02701     0.02082
+    0.0011711     0.03146    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.93464    10.035    3.9591
+     1.7264    13.184    6.4201
+    0.93182    9.6307    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:03 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/230
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/230
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.95047    10.372    3.9591
+      1.887    13.659    6.4201
+    0.99577    9.6966    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0034583    0.032784    0.019336
+    0.0030122    0.041005     0.02082
+    0.0022932    0.040071    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.95047    10.372    3.9591
+      1.887    13.659    6.4201
+    0.99577    9.6966    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:07 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/240
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/240
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.91788    10.208    3.9591
+     1.9918    12.918    6.4201
+       1.01    9.7537    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0032332    0.032175    0.019336
+    0.0021097    0.030692     0.02082
+    0.0021619    0.036366    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.91788    10.208    3.9591
+     1.9918    12.918    6.4201
+       1.01    9.7537    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:11 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/250
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/250
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.83931    9.7496    3.9591
+     1.6979    13.635    6.4201
+    0.88443    9.6563    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0025602    0.023764    0.019336
+    0.0012915    0.035744     0.02082
+    0.0015755    0.038931    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.83931    9.7496    3.9591
+     1.6979    13.635    6.4201
+    0.88443    9.6563    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:15 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/260
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/260
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.92531    9.9292    3.9591
+     1.9391    13.159    6.4201
+    0.98886     9.286    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0024557     0.02548    0.019336
+     0.002061    0.034994     0.02082
+    0.0016579    0.033736    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.92531    9.9292    3.9591
+     1.9391    13.159    6.4201
+    0.98886     9.286    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:19 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/270
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/270
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.83424    9.7982    3.9591
+      1.693    12.213    6.4201
+    0.89856    9.4821    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0020521    0.030141    0.019336
+    0.0012418    0.026109     0.02082
+    0.0012391    0.032059    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.83424    9.7982    3.9591
+      1.693    12.213    6.4201
+    0.89856    9.4821    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:23 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/280
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/280
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.85296    9.8353    3.9591
+     1.6755    13.015    6.4201
+    0.88238    9.8143    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0016906    0.023491    0.019336
+    0.0012228    0.036248     0.02082
+    0.0012071    0.036764    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.85296    9.8353    3.9591
+     1.6755    13.015    6.4201
+    0.88238    9.8143    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:27 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/290
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/290
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.81087    10.026    3.9591
+      1.653    13.598    6.4201
+    0.78421    9.4801    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0024091    0.019561    0.019336
+     0.0012694    0.041938     0.02082
+    0.00091909     0.04591    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.81087    10.026    3.9591
+      1.653    13.598    6.4201
+    0.78421    9.4801    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:32 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/300
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/300
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.8398    9.8224    3.9591
+     1.6242    13.184    6.4201
+    0.78496    9.6069    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0018069    0.021228    0.019336
+    0.00091344    0.033599     0.02082
+     0.0010449    0.036744    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.8398    9.8224    3.9591
+     1.6242    13.184    6.4201
+    0.78496    9.6069    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:36 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/310
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/310
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.75781    9.8994    3.9591
+     1.5691    12.942    6.4201
+    0.69139    9.8695    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0025647    0.028409    0.019336
+     0.0013309    0.029573     0.02082
+    0.00086797     0.03692    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.75781    9.8994    3.9591
+     1.5691    12.942    6.4201
+    0.69139    9.8695    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:40 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/320
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/320
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.75036    9.3929    3.9591
+     1.4783    12.846    6.4201
+    0.66708    9.1977    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0023717    0.017577    0.019336
+     0.0012282     0.02975     0.02082
+    0.00072592    0.035773    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.75036    9.3929    3.9591
+     1.4783    12.846    6.4201
+    0.66708    9.1977    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:44 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/330
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/330
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.69912      8.87    3.9591
+      1.485    11.638    6.4201
+    0.64554    8.5275    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0019889    0.019086    0.019336
+    0.0014677    0.021421     0.02082
+    0.0012138      0.0282    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.69912      8.87    3.9591
+      1.485    11.638    6.4201
+    0.64554    8.5275    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:48 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/340
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/340
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.76028    9.4184    3.9591
+     1.5141    12.655    6.4201
+    0.74565    9.2656    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0016686    0.023925    0.019336
+    0.0015096    0.029091     0.02082
+    0.0011242    0.034308    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.76028    9.4184    3.9591
+     1.5141    12.655    6.4201
+    0.74565    9.2656    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:52 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/350
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/350
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.70206    9.4208    3.9591
+     1.3569    12.728    6.4201
+    0.62692    8.5216    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0018521    0.016071    0.019336
+     0.0011927    0.029564     0.02082
+    0.00072951    0.035046    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.70206    9.4208    3.9591
+     1.3569    12.728    6.4201
+    0.62692    8.5216    4.7878
+
+======== Prediction Test at 2023-05-10 19:55:56 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/360
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/360
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.69903    9.2342    3.9591
+     1.4241    12.885    6.4201
+    0.70312    8.8323    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0018606    0.014591    0.019336
+    0.0022212    0.027501     0.02082
+     0.001539     0.03395    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.69903    9.2342    3.9591
+     1.4241    12.885    6.4201
+    0.70312    8.8323    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:00 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/370
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/370
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.70755    8.9591    3.9591
+     1.3565    12.356    6.4201
+    0.65932    8.9483    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0019581    0.016752    0.019336
+     0.0015518    0.024484     0.02082
+    0.00099757    0.027708    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.70755    8.9591    3.9591
+     1.3565    12.356    6.4201
+    0.65932    8.9483    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:04 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/380
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/380
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.72623    9.1868    3.9591
+     1.3568    12.755    6.4201
+    0.68959    8.7344    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+      0.002277    0.016891    0.019336
+      0.001294    0.025847     0.02082
+    0.00087511    0.029158    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.72623    9.1868    3.9591
+     1.3568    12.755    6.4201
+    0.68959    8.7344    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:08 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/390
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/390
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.63411    9.0834    3.9591
+     1.3477    12.555    6.4201
+    0.58772    8.8088    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0018026    0.017501    0.019336
+    0.0014367    0.022584     0.02082
+    0.0010675    0.026849    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.63411    9.0834    3.9591
+     1.3477    12.555    6.4201
+    0.58772    8.8088    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:12 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/400
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/400
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.67181    8.9419    3.9591
+     1.3586    13.376    6.4201
+    0.62452    8.7482    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+     0.001754    0.014398    0.019336
+     0.001988    0.032414     0.02082
+    0.0011248    0.029558    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.67181    8.9419    3.9591
+     1.3586    13.376    6.4201
+    0.62452    8.7482    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:16 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/410
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/410
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.6721    8.8146    3.9591
+     1.2808    12.826    6.4201
+    0.71379    8.5214    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0023362    0.017156    0.019336
+    0.0011435    0.026835     0.02082
+    0.0011099    0.025099    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.6721    8.8146    3.9591
+     1.2808    12.826    6.4201
+    0.71379    8.5214    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:20 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/420
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/420
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.67761    8.6659    3.9591
+     1.2619    12.602    6.4201
+    0.68769    8.7456    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0026403    0.014148    0.019336
+    0.0016994    0.023152     0.02082
+    0.0012451    0.029422    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.67761    8.6659    3.9591
+     1.2619    12.602    6.4201
+    0.68769    8.7456    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:24 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/430
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/430
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.68147    8.8486    3.9591
+     1.3003    12.466    6.4201
+    0.62108    8.4674    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0016913    0.015698    0.019336
+    0.00094117    0.021553     0.02082
+    0.00067803    0.025771    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.68147    8.8486    3.9591
+     1.3003    12.466    6.4201
+    0.62108    8.4674    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:28 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/440
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/440
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.67121     8.635    3.9591
+     1.2217    13.019    6.4201
+    0.61906    8.3177    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0017354    0.015693    0.019336
+    0.0018559    0.026932     0.02082
+    0.0015223    0.026523    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.67121     8.635    3.9591
+     1.2217    13.019    6.4201
+    0.61906    8.3177    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:32 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/450
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/450
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.62332    8.3923    3.9591
+     1.1362    12.942    6.4201
+    0.50726    8.4768    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0023972     0.01363    0.019336
+     0.0010859     0.02566     0.02082
+    0.00077971    0.027869    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.62332    8.3923    3.9591
+     1.1362    12.942    6.4201
+    0.50726    8.4768    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:36 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/460
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/460
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.60127    8.4728    3.9591
+     1.0986    12.987    6.4201
+      0.493    8.1686    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0015947    0.013817    0.019336
+    0.0015731     0.02738     0.02082
+    0.0012866    0.026774    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.60127    8.4728    3.9591
+     1.0986    12.987    6.4201
+      0.493    8.1686    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:40 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/470
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/470
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.65238    8.5043    3.9591
+     1.2311    12.763    6.4201
+    0.55492    8.3333    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0016231    0.016906    0.019336
+    0.0010485    0.020834     0.02082
+    0.0011054    0.024697    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.65238    8.5043    3.9591
+     1.2311    12.763    6.4201
+    0.55492    8.3333    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:44 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/480
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/480
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.56308    8.3978    3.9591
+     1.1654    13.319    6.4201
+    0.51613    8.2323    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0017054    0.014227    0.019336
+     0.001477     0.02947     0.02082
+    0.0012512    0.028321    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.56308    8.3978    3.9591
+     1.1654    13.319    6.4201
+    0.51613    8.2323    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:48 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/490
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/490
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.57416    8.3107    3.9591
+       1.06    13.096    6.4201
+    0.54223    8.3206    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0022936    0.015104    0.019336
+    0.0012295    0.030081     0.02082
+    0.0010143    0.026469    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.57416    8.3107    3.9591
+       1.06    13.096    6.4201
+    0.54223    8.3206    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:52 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/500
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/500
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.66963    8.3162    3.9591
+     1.1944    12.212    6.4201
+    0.69213    7.9602    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0027157    0.012132    0.019336
+    0.0013093    0.021021     0.02082
+    0.0012782    0.023314    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.66963    8.3162    3.9591
+     1.1944    12.212    6.4201
+    0.69213    7.9602    4.7878
+
+======== Prediction Test at 2023-05-10 19:56:57 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/510
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/510
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.61617    8.4168    3.9591
+      1.142    12.656    6.4201
+    0.61282    8.1731    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0018799    0.013617    0.019336
+    0.0013266    0.023693     0.02082
+    0.0013014    0.025398    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.61617    8.4168    3.9591
+      1.142    12.656    6.4201
+    0.61282    8.1731    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:01 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/520
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/520
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.62503    8.2912    3.9591
+     1.0499    12.526    6.4201
+    0.58396    7.5215    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0020718     0.01374    0.019336
+    0.0015725    0.021778     0.02082
+    0.0009905    0.023043    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.62503    8.2912    3.9591
+     1.0499    12.526    6.4201
+    0.58396    7.5215    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:05 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/530
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/530
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.58459    8.1553    3.9591
+     1.2708    11.994    6.4201
+    0.58437    7.6824    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0021329    0.014033    0.019336
+    0.0010327    0.015649     0.02082
+    0.0014145    0.018448    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.58459    8.1553    3.9591
+     1.2708    11.994    6.4201
+    0.58437    7.6824    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:09 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/540
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/540
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.55462    8.1357    3.9591
+     1.1334    12.343    6.4201
+    0.50698    7.8119    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0015484     0.01516    0.019336
+     0.001482    0.018895     0.02082
+    0.0011953    0.021738    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.55462    8.1357    3.9591
+     1.1334    12.343    6.4201
+    0.50698    7.8119    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:13 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/550
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/550
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.60747    8.1263    3.9591
+       1.28    12.609    6.4201
+    0.56619    7.4865    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0016232    0.011001    0.019336
+    0.00092559     0.02289     0.02082
+     0.0015182    0.021593    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.60747    8.1263    3.9591
+       1.28    12.609    6.4201
+    0.56619    7.4865    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:17 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/560
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/560
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.52417     8.182    3.9591
+     1.1035    13.067    6.4201
+     0.4545    7.4894    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0018385    0.010897    0.019336
+     0.0012462      0.0254     0.02082
+    0.00093875    0.022585    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.52417     8.182    3.9591
+     1.1035    13.067    6.4201
+     0.4545    7.4894    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:21 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/570
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/570
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.57025    8.1986    3.9591
+     1.1243    12.568    6.4201
+    0.54653    7.9146    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0020704    0.011575    0.019336
+    0.0014127    0.017899     0.02082
+    0.0014237    0.022423    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.57025    8.1986    3.9591
+     1.1243    12.568    6.4201
+    0.54653    7.9146    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:25 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/580
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/580
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.60113    7.7965    3.9591
+     1.2348     11.95    6.4201
+    0.57226     7.169    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0018256    0.014115    0.019336
+    0.0014345    0.013322     0.02082
+    0.0012946    0.017211    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.60113    7.7965    3.9591
+     1.2348     11.95    6.4201
+    0.57226     7.169    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:29 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/590
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/590
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.50706     7.859    3.9591
+     1.1203    12.123    6.4201
+    0.46375    7.2872    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0022886     0.01538    0.019336
+    0.0014875    0.016571     0.02082
+     0.001235    0.016786    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.50706     7.859    3.9591
+     1.1203    12.123    6.4201
+    0.46375    7.2872    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:33 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/600
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/600
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.59859    8.1065    3.9591
+     1.1412    12.752    6.4201
+    0.49695    7.8853    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0015426    0.013623    0.019336
+    0.0010144    0.017411     0.02082
+    0.0010889    0.019747    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.59859    8.1065    3.9591
+     1.1412    12.752    6.4201
+    0.49695    7.8853    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:37 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/610
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/610
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.63383    8.0613    3.9591
+     1.1991    12.995    6.4201
+    0.58503    7.4753    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0014792    0.012143    0.019336
+    0.0011791    0.022285     0.02082
+     0.001184    0.022904    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.63383    8.0613    3.9591
+     1.1991    12.995    6.4201
+    0.58503    7.4753    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:41 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/620
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/620
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.55374    7.8446    3.9591
+     1.0658    11.923    6.4201
+     0.4685    7.1201    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0016391    0.011996    0.019336
+     0.0012826     0.01532     0.02082
+    0.00099002    0.017309    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.55374    7.8446    3.9591
+     1.0658    11.923    6.4201
+     0.4685    7.1201    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:45 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/630
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/630
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.5815    7.8801    3.9591
+     1.1194    12.364    6.4201
+    0.49924    7.0239    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+      0.001469    0.015047    0.019336
+     0.0013552    0.018853     0.02082
+    0.00083441     0.01629    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.5815    7.8801    3.9591
+     1.1194    12.364    6.4201
+    0.49924    7.0239    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:49 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/640
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/640
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.54694    7.6347    3.9591
+     1.0415    11.948    6.4201
+    0.51879     6.803    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0020214    0.011755    0.019336
+    0.0013905    0.016439     0.02082
+    0.0010624    0.017204    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.54694    7.6347    3.9591
+     1.0415    11.948    6.4201
+    0.51879     6.803    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:53 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/650
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/650
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.56984    7.9396    3.9591
+     1.1515    12.412    6.4201
+    0.51997     6.847    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0019622    0.012178    0.019336
+    0.0011749    0.025403     0.02082
+    0.0010485    0.017534    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.56984    7.9396    3.9591
+     1.1515    12.412    6.4201
+    0.51997     6.847    4.7878
+
+======== Prediction Test at 2023-05-10 19:57:57 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/660
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/660
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.5869    7.8552    3.9591
+     1.1319    12.095    6.4201
+    0.55935    6.8141    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0018623    0.012059    0.019336
+     0.001036    0.020421     0.02082
+    0.0010856     0.01611    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.5869    7.8552    3.9591
+     1.1319    12.095    6.4201
+    0.55935    6.8141    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:01 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/670
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/670
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.61087    7.9965    3.9591
+    0.98511    12.537    6.4201
+    0.56802    7.3215    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0016401    0.015517    0.019336
+    0.0012499    0.022022     0.02082
+    0.0011725    0.016968    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.61087    7.9965    3.9591
+    0.98511    12.537    6.4201
+    0.56802    7.3215    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:05 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/680
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/680
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.59486    7.8977    3.9591
+     1.0604    12.128    6.4201
+    0.62642    6.7994    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0020433    0.011639    0.019336
+    0.0011697    0.023097     0.02082
+    0.0013286    0.016991    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.59486    7.8977    3.9591
+     1.0604    12.128    6.4201
+    0.62642    6.7994    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:09 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/690
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/690
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.64481    7.7928    3.9591
+     1.0942    12.556    6.4201
+    0.69916    7.1453    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0015278    0.012103    0.019336
+    0.0010529    0.020594     0.02082
+     0.001332    0.017901    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.64481    7.7928    3.9591
+     1.0942    12.556    6.4201
+    0.69916    7.1453    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:13 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/700
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/700
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.50945    7.6399    3.9591
+    0.95941    11.575    6.4201
+    0.48104    6.4929    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0015351    0.011845    0.019336
+    0.0012532    0.014026     0.02082
+    0.0013648    0.012651    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.50945    7.6399    3.9591
+    0.95941    11.575    6.4201
+    0.48104    6.4929    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:17 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/710
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/710
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.57225    7.6011    3.9591
+     1.0168    11.439    6.4201
+    0.60808    6.6662    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0018534     0.01192    0.019336
+    0.0012393    0.013729     0.02082
+    0.0010839    0.013532    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.57225    7.6011    3.9591
+     1.0168    11.439    6.4201
+    0.60808    6.6662    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:21 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/720
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/720
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.56069    7.5267    3.9591
+    0.97149    12.111    6.4201
+    0.59681    6.6601    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0013983    0.013349    0.019336
+    0.0012923    0.018759     0.02082
+    0.0012798    0.014476    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.56069    7.5267    3.9591
+    0.97149    12.111    6.4201
+    0.59681    6.6601    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:25 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/730
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/730
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.5504    7.5537    3.9591
+    0.94645    12.144    6.4201
+    0.64065    6.7085    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0016879    0.009511    0.019336
+    0.0011351    0.018443     0.02082
+    0.0011513      0.0132    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.5504    7.5537    3.9591
+    0.94645    12.144    6.4201
+    0.64065    6.7085    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:29 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/740
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/740
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.62007     7.708    3.9591
+     1.0325    12.083    6.4201
+      0.694    7.0055    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0021114    0.012273    0.019336
+    0.0011175    0.019371     0.02082
+    0.0013774    0.014814    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.62007     7.708    3.9591
+     1.0325    12.083    6.4201
+      0.694    7.0055    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:34 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/750
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/750
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.53651    7.3563    3.9591
+     0.8719     11.52    6.4201
+    0.59221     6.466    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0014738    0.012612    0.019336
+     0.0012608    0.019535     0.02082
+    0.00095905    0.014914    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.53651    7.3563    3.9591
+     0.8719     11.52    6.4201
+    0.59221     6.466    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:38 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/760
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/760
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.53725    7.0336    3.9591
+    0.96678    11.452    6.4201
+    0.72526    6.3055    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+      0.001709    0.011712    0.019336
+     0.0014923    0.016883     0.02082
+    0.00089059    0.013636    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.53725    7.0336    3.9591
+    0.96678    11.452    6.4201
+    0.72526    6.3055    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:42 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/770
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/770
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.5272    6.9165    3.9591
+    0.77908    11.201    6.4201
+    0.62265    6.3016    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0015251    0.014203    0.019336
+    0.0011123     0.01408     0.02082
+    0.0011638    0.012637    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.5272    6.9165    3.9591
+    0.77908    11.201    6.4201
+    0.62265    6.3016    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:46 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/780
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/780
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.54805    7.0836    3.9591
+    0.96272     11.21    6.4201
+     0.6759    6.5888    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0019015     0.01405    0.019336
+    0.00095649     0.01622     0.02082
+     0.0016195    0.015751    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.54805    7.0836    3.9591
+    0.96272     11.21    6.4201
+     0.6759    6.5888    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:50 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/790
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/790
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.5316     7.564    3.9591
+    0.67353    10.881    6.4201
+    0.65889     6.509    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0015131    0.017236    0.019336
+    0.0011757    0.013688     0.02082
+    0.0009357     0.01401    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.5316     7.564    3.9591
+    0.67353    10.881    6.4201
+    0.65889     6.509    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:54 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/800
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/800
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.53031    7.0502    3.9591
+     0.7439    11.522    6.4201
+    0.63164    6.2271    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0015771    0.012776    0.019336
+    0.0011983     0.01763     0.02082
+    0.0010516    0.013269    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.53031    7.0502    3.9591
+     0.7439    11.522    6.4201
+    0.63164    6.2271    4.7878
+
+======== Prediction Test at 2023-05-10 19:58:58 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/810
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/810
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.56774    6.8802    3.9591
+    0.81577    11.566    6.4201
+    0.65653     6.095    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0018372    0.011231    0.019336
+     0.0010155    0.017562     0.02082
+    0.00084882    0.012457    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.56774    6.8802    3.9591
+    0.81577    11.566    6.4201
+    0.65653     6.095    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:02 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/820
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/820
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.57812    7.3953    3.9591
+    0.78255    11.677    6.4201
+    0.65963     6.311    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0014761    0.012218    0.019336
+     0.0011444    0.019833     0.02082
+    0.00098599    0.013809    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.57812    7.3953    3.9591
+    0.78255    11.677    6.4201
+    0.65963     6.311    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:06 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/830
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/830
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.53186    6.9435    3.9591
+    0.75604    10.994    6.4201
+     0.6303    6.2838    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0014351    0.014233    0.019336
+     0.0011583    0.016664     0.02082
+    0.00089885    0.012885    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.53186    6.9435    3.9591
+    0.75604    10.994    6.4201
+     0.6303    6.2838    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:10 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/840
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/840
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.6027    6.6904    3.9591
+    0.83652    10.648    6.4201
+    0.66764    5.7801    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0016403    0.010572    0.019336
+    0.00097161    0.020386     0.02082
+     0.0013612    0.012907    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.6027    6.6904    3.9591
+    0.83652    10.648    6.4201
+    0.66764    5.7801    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:14 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/850
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/850
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.55498     6.718    3.9591
+    0.85225     10.77    6.4201
+    0.59852    5.7793    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+      0.001514     0.01251    0.019336
+      0.001122    0.016483     0.02082
+    0.00084819    0.014704    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.55498     6.718    3.9591
+    0.85225     10.77    6.4201
+    0.59852    5.7793    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:18 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/860
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/860
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.62335     6.762    3.9591
+    0.86273    11.171    6.4201
+    0.62989    5.9698    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0015773    0.011265    0.019336
+    0.00065568    0.012955     0.02082
+     0.0011896     0.01231    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.62335     6.762    3.9591
+    0.86273    11.171    6.4201
+    0.62989    5.9698    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:22 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/870
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/870
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+      0.534    6.7891    3.9591
+    0.81853    11.579    6.4201
+    0.59606     5.999    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0019861    0.010327    0.019336
+    0.0010771    0.016542     0.02082
+    0.0013308    0.012244    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+      0.534    6.7891    3.9591
+    0.81853    11.579    6.4201
+    0.59606     5.999    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:26 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/880
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/880
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.63564    6.8237    3.9591
+    0.84573    11.286    6.4201
+    0.62461    5.8477    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG           F    
+    __________    _________    ________
+     0.0015474     0.011001    0.019336
+    0.00079473     0.015496     0.02082
+     0.0011987    0.0098723    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.63564    6.8237    3.9591
+    0.84573    11.286    6.4201
+    0.62461    5.8477    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:30 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/890
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/890
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.57163    6.9826    3.9591
+     0.7487    11.212    6.4201
+    0.63661    6.2156    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG           F    
+    _________    _________    ________
+    0.0013471    0.0087309    0.019336
+    0.0011705     0.013939     0.02082
+    0.0010774     0.010614    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.57163    6.9826    3.9591
+     0.7487    11.212    6.4201
+    0.63661    6.2156    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:34 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/900
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/900
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.60219    6.6696    3.9591
+     0.7734    11.096    6.4201
+    0.68212    5.7597    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0012744    0.011178    0.019336
+    0.0013339    0.013835     0.02082
+    0.0011633    0.011321    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.60219    6.6696    3.9591
+     0.7734    11.096    6.4201
+    0.68212    5.7597    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:38 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/910
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/910
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.56476    6.7166    3.9591
+    0.65102    10.844    6.4201
+    0.62108    6.0589    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG           F    
+    __________    _________    ________
+     0.0011488    0.0090125    0.019336
+    0.00088122     0.012093     0.02082
+    0.00078317      0.01059    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.56476    6.7166    3.9591
+    0.65102    10.844    6.4201
+    0.62108    6.0589    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:42 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/920
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/920
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.61718    6.3452    3.9591
+    0.80534    10.442    6.4201
+    0.68376    5.9477    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0012411    0.010477    0.019336
+    0.00098926    0.014742     0.02082
+      0.001482    0.013531    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.61718    6.3452    3.9591
+    0.80534    10.442    6.4201
+    0.68376    5.9477    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:46 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/930
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/930
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.54511    6.1689    3.9591
+     0.6403    10.035    6.4201
+    0.58711    5.4657    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0013432    0.011991    0.019336
+    0.00097282    0.014272     0.02082
+    0.00096673    0.013125    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.54511    6.1689    3.9591
+     0.6403    10.035    6.4201
+    0.58711    5.4657    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:50 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/940
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/940
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.58007    6.4171    3.9591
+    0.76407     10.34    6.4201
+    0.64793     5.831    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0012571     0.01399    0.019336
+    0.00086882    0.013909     0.02082
+     0.0014181    0.013654    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.58007    6.4171    3.9591
+    0.76407     10.34    6.4201
+    0.64793     5.831    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:54 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/950
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/950
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.51041     6.242    3.9591
+    0.73089    10.625    6.4201
+    0.62583    5.3828    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0013088    0.013411    0.019336
+    0.00092614    0.013732     0.02082
+    0.00068399    0.010917    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.51041     6.242    3.9591
+    0.73089    10.625    6.4201
+    0.62583    5.3828    4.7878
+
+======== Prediction Test at 2023-05-10 19:59:58 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/960
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/960
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.58722    6.2003    3.9591
+    0.72912    10.334    6.4201
+    0.65137    5.5307    4.7878
+one_step_err =
+  3&times;3 table
+        G           FG          F    
+    _________    ________    ________
+    0.0014735    0.010079    0.019336
+    0.0010861    0.013076     0.02082
+    0.0010824    0.010833    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.58722    6.2003    3.9591
+    0.72912    10.334    6.4201
+    0.65137    5.5307    4.7878
+
+======== Prediction Test at 2023-05-10 20:00:03 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/970
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/970
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.5539    6.2349    3.9591
+    0.60612    10.606    6.4201
+     0.6416    5.9015    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG           F    
+    __________    _________    ________
+     0.0014272    0.0086319    0.019336
+     0.0011281     0.014597     0.02082
+    0.00073622      0.01222    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+     0.5539    6.2349    3.9591
+    0.60612    10.606    6.4201
+     0.6416    5.9015    4.7878
+
+======== Prediction Test at 2023-05-10 20:00:07 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/980
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/980
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.58215    6.3484    3.9591
+    0.65529    10.709    6.4201
+    0.60802    5.6896    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+       0.00135    0.010008    0.019336
+     0.0010091    0.015347     0.02082
+    0.00096905     0.01157    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.58215    6.3484    3.9591
+    0.65529    10.709    6.4201
+    0.60802    5.6896    4.7878
+
+======== Prediction Test at 2023-05-10 20:00:11 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/990
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/990
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.50663    5.8676    3.9591
+    0.66589    11.109    6.4201
+    0.62053    5.2239    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG          F    
+    __________    ________    ________
+     0.0013918    0.010346    0.019336
+     0.0010848    0.017327     0.02082
+    0.00088677    0.010495    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.50663    5.8676    3.9591
+    0.66589    11.109    6.4201
+    0.62053    5.2239    4.7878
+
+======== Prediction Test at 2023-05-10 20:00:16 ========
+Loading Neural Network NN_NAME_FULL: 0510_0725PM_MY_PDE/FINAL1000
+Loading Neural Network NN_NAME: 0510_0726PM_MY_PDE/FINAL1000
+Prediction Start
+traj_err =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.56584    6.1501    3.9591
+    0.58768    10.293    6.4201
+    0.62303    5.6229    4.7878
+one_step_err =
+  3&times;3 table
+        G            FG           F    
+    __________    _________    ________
+     0.0012972     0.011597    0.019336
+     0.0006786     0.013565     0.02082
+    0.00098598    0.0097082    0.022459
+rst =
+  3&times;3 table
+       G         FG        F   
+    _______    ______    ______
+    0.56584    6.1501    3.9591
+    0.58768    10.293    6.4201
+    0.62303    5.6229    4.7878
+</pre><pre class="codeinput"><span class="keyword">if</span> TRAIN_CHECK
+    tiledlayout(1,1);
+    nexttile
+
+    iter = (0:1:length(NN_NAME_LIST)-1) * 10;
+
+    plot(iter, reshape(rst_list(:,1,:), [], 1), <span class="string">'r'</span>)
+    hold <span class="string">on</span>
+    plot(iter, reshape(rst_list(:,2,:), [], 1) ,<span class="string">'b'</span>)
+
+    xlabel(<span class="string">"Train Iteration"</span>,<span class="string">'fontsize'</span>,10,<span class="string">'fontname'</span>, <span class="string">'Times New Roman'</span>)
+    ylabel(<span class="string">"Trajectoy Error Mean"</span>,<span class="string">'fontsize'</span>,10,<span class="string">'fontname'</span>, <span class="string">'Times New Roman'</span>)
+    grid <span class="string">on</span>
+
+    lgd = legend(<span class="string">'Residual Train'</span>, <span class="string">'Full Train'</span>, <span class="keyword">...</span>
+        <span class="string">'fontsize'</span>,11,<span class="string">'fontname'</span>, <span class="string">'Times New Roman'</span>);
+    lgd.Layout.Tile = <span class="string">'north'</span>;
+    lgd.NumColumns = 3;
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="train_compare_01.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% MAIN FUNCTION TO EXECUTE THE MATLAB FUNCTION 
+format shortEng
+format compact
+%% prediction test
+PLOT_DATA = false;
+TRAIN_CHECK = true;
+TEST_NUM = 10;
+Ts = 0.01; Np = 20;
+
+NN_dir = "0510_0726PM_MY_PDE";
+NN_full_dir = "0510_0725PM_MY_PDE";
+%%
+NN_info = dir(NN_dir);
+NN_num = length(NN_info)-2;
+NUM_LIST = [];
+NN_NAME_LIST = [];
+for l = 1:1:NN_num
+    num = NN_info(2+l).name(1:end-5);
+    num = str2double(num);
+    if rem(num, 10) == 0 || isnan(num)
+        NUM_LIST = [NUM_LIST num];
+    end
+end
+NUM_LIST = sort(NUM_LIST);
+
+for l = 1:1:length(NUM_LIST)
+    tmp = num2str(NUM_LIST(l));
+    if strcmp(tmp, "NaN")
+        NN_NAME_LIST = [NN_NAME_LIST NN_dir + "/FINAL1000"];
+    else
+        NN_NAME_LIST = [NN_NAME_LIST NN_dir + "/" + tmp];
+    end
+end
+
+NN_info = dir(NN_full_dir);
+NN_num = length(NN_info)-2;
+NUM_LIST = [];
+NN_NAME_FULL_LIST = [];
+for l = 1:1:NN_num
+    num = NN_info(2+l).name(1:end-5);
+    num = str2double(num);
+    if rem(num, 10) == 0 || isnan(num)
+        NUM_LIST = [NUM_LIST num];
+    end
+end
+NUM_LIST = sort(NUM_LIST);
+
+for l = 1:1:length(NUM_LIST)
+    tmp = num2str(NUM_LIST(l));
+    if strcmp(tmp, "NaN")
+        NN_NAME_FULL_LIST = [NN_NAME_FULL_LIST NN_full_dir + "/FINAL1000"];
+    else
+        NN_NAME_FULL_LIST = [NN_NAME_FULL_LIST NN_full_dir + "/" + tmp];
+    end
+end
+
+%%
+rst_list = []; j = 1;
+
+if length(NN_NAME_LIST) ~= length(NN_NAME_FULL_LIST)
+    fprintf("%d, %d",length(NN_NAME_LIST),length(NN_NAME_FULL_LIST))
+	error("not same length of NN and NN_FULL")
+end
+
+for k = 1:1:length(NUM_LIST)
+    NN_NAME = NN_NAME_LIST(k);
+    NN_FULL = NN_NAME_FULL_LIST(k);
+    rst = prediction_check(PLOT_DATA, NN_NAME, NN_FULL, TEST_NUM, Ts, Np)
+    rst = table2array(rst);
+    
+    if isempty(rst_list)
+        rst_list = rst;
+    else
+        rst_list(:,:,j) = rst;
+    end
+    j = j + 1;
+ end
+
+
+rst_list = sqrt(mean(rst_list.^2));
+%%
+if TRAIN_CHECK
+    tiledlayout(1,1);
+    nexttile
+        
+    iter = (0:1:length(NN_NAME_LIST)-1) * 10;
+
+    plot(iter, reshape(rst_list(:,1,:), [], 1), 'r')
+    hold on
+    plot(iter, reshape(rst_list(:,2,:), [], 1) ,'b')
+
+    xlabel("Train Iteration",'fontsize',10,'fontname', 'Times New Roman')
+    ylabel("Trajectoy Error Mean",'fontsize',10,'fontname', 'Times New Roman') 
+    grid on
+        
+    lgd = legend('Residual Train', 'Full Train', ...
+        'fontsize',11,'fontname', 'Times New Roman');
+    lgd.Layout.Tile = 'north';
+    lgd.NumColumns = 3;
+end
+
+##### SOURCE END #####
+--></body></html>

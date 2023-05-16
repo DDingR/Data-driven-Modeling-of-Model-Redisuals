@@ -9,16 +9,16 @@ class NN(nn.Module):
     def __init__(self, input_shape) -> None:
         super().__init__()
         self.fc = nn.Sequential(
-            nn.Linear(input_shape, 32),
+            nn.Linear(input_shape, 128),
             nn.ReLU(),
-            nn.Linear(32, 32),
+            nn.Linear(128, 128),
             nn.ReLU(),
-            nn.Linear(32, 32),
+            nn.Linear(128, 128),
             nn.ReLU(),                      
-            nn.Linear(32, 3)
+            nn.Linear(128, 3)
         )
     def forward(self, x):
-        x = torch.nn.functional.normalize(x, dim=-1)
+        # x = torch.nn.functional.normalize(x, dim=-1)
         x = self.fc(x)
         return x
 
